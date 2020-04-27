@@ -1,4 +1,5 @@
-CMAQv5.3.1 Documentation
+National Air Quality Forecasting Capability (NAQFC)
+Based on CMAQv5.3.1 Documentation
 ==================
 
 This directory contains the documentation for the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system.
