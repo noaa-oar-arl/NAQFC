@@ -1,6 +1,6 @@
 #!/bin/ksh -x
 
-export SPECIES_DEF=combine/scripts/spec_def_files/SpecDef_Dep_cb6r3_ae7_aq.txt
+export SPECIES_DEF=combine/scripts/spec_def_files/SpecDef_cb6r3_ae7_naqfc_trimmed.txt
 
 PDY="User add YYYYMMDD"  
 COMIN="User add cmaq input directory"
