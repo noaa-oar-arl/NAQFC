@@ -6,6 +6,7 @@ The following programs are provided to process and prepare input data for the CM
 
 ## Pre-processing Programs
 * **[bcon](bcon/README.md)**: prepares lateral chemical boundary conditions (BCs) for CCTM from either ASCII vertical profiles or from an existing CCTM output concentration (CONC) file
+* **[bcon_gefs_aerosols](bcon_gefs_aerosols/README.md)**: prepares lateral chemical boundary conditions (BCs) for CCTM from an existing GEFS-Aerosols output concentration history file
 * **[icon](icon/README.md)**: prepares chemical initial conditions (ICs) for CCTM from either ASCII vertical profiles or from an existing CCTM output concentration (CONC) file
 data
 * **[nacc](nacc/README.md)**: processes meteorological model output from either WRF-ARW or FV3GFSv16 model into I/O API-formatted files that are compatible with CMAQ and SMOKE
