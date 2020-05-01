@@ -598,7 +598,7 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 ! Dry ground resistance.  (revised according to Erisman). Canopy height is assumed to be 10 * z0 according to PX-LSM
  
                hcan  = MET_DATA%Z0( c,r ) * 10.0
-               rinc  = 14.0 * laicr * hcan / ustarcr
+               rinc  = 14.0 * laicr * hcan / amax1(0.2,ustarcr)
                 IF ( depspc( l ) .NE. 'O3' ) THEN
                    rgnd  = rg0 * a0 / ar( l )
                    rgw  = rgwet0 / heff    ! wet ground
