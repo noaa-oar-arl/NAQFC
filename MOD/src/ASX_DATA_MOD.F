@@ -1,4 +1,4 @@
-!------------------------------------------------------------------------!
+`!------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
 !  from these groups: Federal Government employees, contractors working  !
@@ -772,6 +772,16 @@ C Soil vars
          call interpolate_var ('SOIT1', jdate, jtime, Met_Data%SOIT1)
 
          call interpolate_var ('SEAICE', jdate, jtime, Met_Data%SEAICE)
+
+         call interpolate_var ('SSM', jdate, jtime, Met_Data%SSM)
+         
+         call interpolate_var ('DRAG', jdate, jtime, Met_Data%DRAG)
+
+         call interpolate_var ('UTHR', jdate, jtime, Met_Data%UTHR)
+
+         call interpolate_var ('SANDF', jdate, jtime, Met_Data%SANDF)
+
+         call interpolate_var ('CLAYF', jdate, jtime, Met_Data%CLAYF)
 
 C met vars
 
