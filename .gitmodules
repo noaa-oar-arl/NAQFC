@@ -1,3 +1,6 @@
 [submodule "PREP/nacc"]
 	path = PREP/nacc
 	url = https://github.com/noaa-oar-arl/NACC.git
+[submodule "PREP/gefs_aer_lbc"]
+	path = PREP/gefs_aer_lbc
+	url = https://github.com/noaa-oar-arl/GEFS-Aerosol-LBC.git
