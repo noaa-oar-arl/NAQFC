@@ -5,5 +5,7 @@ National Air Quality Forecasting Capability
 
 Citation:  Appropriate GBBEPx citations here...
 
-GBBEPx Fires/Biomass Burning info...
-
+Thie folder includes code/script for NAQFC GBBEPX wildfire emission processor.
+The script includes the tunable emission factors, diurnal profile, daily profile, and
+the factor of converting FRP (fire radiaio power) to heat flux for calculating 
+emission plume rise. 

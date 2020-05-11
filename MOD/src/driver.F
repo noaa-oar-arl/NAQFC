@@ -100,6 +100,7 @@ C                      use scheme
 C   02 Aug 19 F. Sidi: Restored serial processing option
 C   03 AUG 19 D.Wong:  Modified code to work with two-way model
 C   09 Sep 19 F. Sidi: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL 
+C05/04/2020 Youhua Tang: Change cgrid writing frequency 
 C-----------------------------------------------------------------------
 
       USE RXNS_DATA             ! chemical mechanism data
@@ -782,6 +783,12 @@ C write conc fields
          IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
       END IF
+      
+C write CGRID fields every six hours
+
+         IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( 60000 ) ) .EQ. 0 ) THEN
+          CALL WR_CGRID ( CGRID, JDATE, JTIME, 60000 )	  
+	 ENDIF	 
 
 #ifdef twoway
       IF ( SD_TIME_SERIES ) THEN
@@ -798,7 +805,7 @@ C write conc fields
          call shutdown()
 #else
 C write CGRID state file for subsequent runs
-         CALL WR_CGRID ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
+c         CALL WR_CGRID ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
 #ifdef isam
          CALL WR_SA_CGRID ( JDATE, JTIME, TSTEP( 1 ) )
 #endif
