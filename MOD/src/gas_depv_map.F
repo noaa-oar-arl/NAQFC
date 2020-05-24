@@ -17,6 +17,10 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/gas_depv_map.F,v 1.5 2011/10/21 16:10:38 yoj Exp $
+
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GAS_DEPV_MAP ( N_DEPV_NAMES, DEPV_NAMES, DEPV_SUR )
 
@@ -26,7 +30,8 @@ C   16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
 
       USE CGRID_SPCS            ! CGRID mechanism species
-      USE DEPVVARS
+!      USE DEPVVARS
+      USE STAGE_DATA
       USE UTILIO_DEFN
 
       IMPLICIT NONE
@@ -61,11 +66,12 @@ C----------------------------------------------------------------------
       END IF
 
 C Set up names and indices
-
-      IF ( .NOT. DEPVVARS_INIT( ) ) THEN
-         XMSG = 'Failure initializing depvvars module'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      N_USE_DEPSPC = 0
+      USE_DEPSPC = .FALSE.   ! array
+!      IF ( .NOT. DEPVVARS_INIT( ) ) THEN
+!         XMSG = 'Failure initializing depvvars module'
+!         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!      END IF
 
 C Set up the DEPV pointers to calculated deposition velocities
 
@@ -76,13 +82,13 @@ C Set up the DEPV pointers to calculated deposition velocities
 
       DO V = 1, N_DEPV_NAMES
          VNAME = DEPV_NAMES( V )( 4:LEN_TRIM( DEPV_NAMES( V ) ) )
-         N = INDEX1( VNAME, LTOTG, DEPSPC )
+         N = INDEX1( VNAME, dep_gas_all, vd_name )
          IF ( N .NE. 0 ) THEN
             IF ( .NOT. USE_DEPSPC( N ) ) THEN
                USE_DEPSPC( N ) = .TRUE.
                N_USE_DEPSPC = N_USE_DEPSPC + 1
 #ifdef Verbose
-               WRITE( LOGDEV,1005 ) V, DEPV_NAMES( V ), N, DEPSPC( N )
+               WRITE( LOGDEV,1005 ) V, DEPV_NAMES( V ), N, vd_name( N )
 #endif
             END IF    
          ELSE
@@ -102,7 +108,7 @@ C Sort DEPV_NAMES based on the order in DEPSPC (DEPVVARS module)
 #endif
 
       N = 0
-      DO V = 1, LTOTG            
+      DO V = 1, dep_gas_all           
 !        IF ( .NOT. USE_DEPSPC( V ) ) CYCLE
          IF ( .NOT. USE_DEPSPC( V ) ) THEN
 #ifdef Verbose
@@ -110,7 +116,7 @@ C Sort DEPV_NAMES based on the order in DEPSPC (DEPVVARS module)
 #endif
          ELSE
             N = N + 1
-            VNAME = 'VD_' // DEPSPC( V )( 1:LEN_TRIM( DEPSPC( V ) ) )
+            VNAME = 'VD_' // vd_name( V )( 1:LEN_TRIM( vd_name( V ) ) )
             DEPV_NAMES( N ) = VNAME
 #ifdef Verbose
             WRITE( LOGDEV,1009 ) V, USE_DEPSPC( V ), N, DEPV_NAMES( N )

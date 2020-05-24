@@ -17,6 +17,10 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.7 2012/01/19 14:27:23 yoj Exp $
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
      &                         N_GDEPV_NAMES, GDEPV_NAMES,
@@ -33,9 +37,8 @@ C 2015-Aug    - added a conditional statement to allow only I/O
 C                 processors to open CTM_DEPV_DIAG file (D. Wong)
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
-      USE DEPVVARS
+      USE STAGE_DATA
       USE UTILIO_DEFN
-!     USE pio_module
 
       IMPLICIT NONE
  
@@ -54,10 +57,6 @@ C number and names of gas deposition velocities
 C number and names of aerosol deposition velocities
       INTEGER, INTENT( IN ) :: N_ADEPV_NAMES
       CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
-
-C number and names of (SOA+aerosol) species deposition velocities
-!     INTEGER, INTENT( IN ) :: N_SDEPV_NAMES
-!     CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
 
 C Local variables:
 

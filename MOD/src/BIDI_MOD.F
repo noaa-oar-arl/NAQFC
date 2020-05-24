@@ -20,16 +20,14 @@
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module Bidi_Mod
 
-C Contains the shared variables and subrountes needed for the bidirectional 
-C NH3 flux model in CMAQ
+C Contains the shared variables and subroutines needed for the bidirectional 
+C flux models in CMAQ
 C
 C OPASX_MEDIA - Opens the output file for NH4+ and H+ in the soil water solution
 C               
 C Revision History: J. Bash Mar 15 11: Created
 C                   J. Bash May 11 11: Updated for CMAQ 5.0
-C                   D. Wong 1 Feb 19: removed MY_N clauses
-      USE RUNTIME_VARS
-
+C                   D. Wong Feb 01 19: removed all MY_N clauses
 
       Implicit None
 ! Private variables
@@ -55,31 +53,27 @@ C                   D. Wong 1 Feb 19: removed MY_N clauses
       Real, Save, Allocatable :: MHp1   ( :,: ) ! molar H+
       Real, Save, Allocatable :: MHp2   ( :,: ) ! molar H+  
       Real, Save, Allocatable :: CMEDIA ( :,:,: ) ! surface layer concs 
+
       Logical, Save     :: INIT_LAI   
-      Logical, Save     :: INIT_ATX 
-      Logical, Save     :: INIT_ASX              
+      Logical, Save     :: INIT_COMP              
 
 
       Contains 
-         Subroutine INIT_BIDI( )
+         Subroutine INIT_BIDI()
          Use GRID_CONF
          Use CGRID_SPCS          ! CGRID mechanism species
          Use UTILIO_DEFN
+         Use RUNTIME_VARS
          
          Implicit None
          
 C... Local:
  
          Character( 16 ) :: PNAME = 'INIT_BIDI       '
-         Character( 80 ) :: VARDESC
          Integer         :: STATUS
          
 C--------------------------------------------------------------------------
-         ! Set Mercury BiDi Processing Flag equal to false if there is
-         ! no mercury gas-phase species.
-         If ( INDEX1( 'HG', N_GC_DDEP, GC_DDEP ) .EQ. 0 ) HGBIDI = .FALSE.
 
-         ! Define Media Concentration Output Variables and Descriptions
          If ( ABFLUX .And. .Not. HGBIDI ) Then
          
             N_TOT = NHx_TOT
@@ -105,22 +99,22 @@ C--------------------------------------------------------------------------
             Allocate( MEDIA_NAMES( HG_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
             MEDIA_NAMES( 1 ) = 'DGM             ' ! Dissolved gaseous Hg
-            MEDIA_UNITS( 1 ) = 'umol/mol' 
+            MEDIA_UNITS( 1 ) = 'umol mol-1' 
             MEDIA_DESCR( 1 ) = 'Surface water dissolved Hg(0)'
             MEDIA_NAMES( 2 ) = 'DRM             ' ! Dissolved reactive Hg
-            MEDIA_UNITS( 2 ) = 'umol/mol' 
+            MEDIA_UNITS( 2 ) = 'umol mol-1' 
             MEDIA_DESCR( 2 ) = 'Surface water dissolved Hg(II)'
             MEDIA_NAMES( 3 ) = 'HGSOIL          '
-            MEDIA_UNITS( 3 ) = 'umol/mol'      
+            MEDIA_UNITS( 3 ) = 'umol mol-1'      
             MEDIA_DESCR( 3 ) = 'Soil water dissolved Hg(0)'
             MEDIA_NAMES( 4 ) = 'HGZ0            '
             MEDIA_UNITS( 4 ) = 'ppmV'      
             MEDIA_DESCR( 4 ) = 'Hg(0) compensation point'
             MEDIA_NAMES( 5 ) = 'HGMES           ' ! mesophyll Hg
-            MEDIA_UNITS( 5 ) = 'umol/g'      
+            MEDIA_UNITS( 5 ) = 'umol g-1'      
             MEDIA_DESCR( 5 ) = 'Hg(0) bound to leaf mesophyll'
             MEDIA_NAMES( 6 ) = 'HGCUT           ' ! cuticular Hg  
-            MEDIA_UNITS( 6 ) = 'umol/g'      
+            MEDIA_UNITS( 6 ) = 'umol g-1'      
             MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'      
             
          Else If ( ABFLUX .And. HGBIDI ) Then
@@ -129,34 +123,34 @@ C--------------------------------------------------------------------------
             Allocate( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
             MEDIA_NAMES( 1 ) = 'DGM             ' ! Dissolved gaseous Hg
-            MEDIA_UNITS( 1 ) = 'umol/mol' 
+            MEDIA_UNITS( 1 ) = 'umol mol-1' 
             MEDIA_DESCR( 1 ) = 'Surface water dissolved Hg(0)'
             MEDIA_NAMES( 2 ) = 'DRM             ' ! Dissolved reactive Hg
-            MEDIA_UNITS( 2 ) = 'umol/mol' 
+            MEDIA_UNITS( 2 ) = 'umol mol-1' 
             MEDIA_DESCR( 2 ) = 'Surface water dissolved Hg(II)'
             MEDIA_NAMES( 3 ) = 'HGSOIL          '
-            MEDIA_UNITS( 3 ) = 'umol/mol'      
+            MEDIA_UNITS( 3 ) = 'umol mol-1'      
             MEDIA_DESCR( 3 ) = 'Soil water dissolved Hg(0)'
             MEDIA_NAMES( 4 ) = 'HGZ0            '
             MEDIA_UNITS( 4 ) = 'ppmV'      
             MEDIA_DESCR( 4 ) = 'Hg(0) compensation point'
             MEDIA_NAMES( 5 ) = 'HGMES           ' ! mesophyll Hg
-            MEDIA_UNITS( 5 ) = 'umol/g'      
+            MEDIA_UNITS( 5 ) = 'umol g-1'      
             MEDIA_DESCR( 5 ) = 'Hg(0) bound to leaf mesophyll'
             MEDIA_NAMES( 6 ) = 'HGCUT           ' ! cuticular Hg  
-            MEDIA_UNITS( 6 ) = 'umol/g'      
+            MEDIA_UNITS( 6 ) = 'umol g-1'      
             MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'   
             MEDIA_NAMES( 7 ) = 'Gamma1          ' 
-            MEDIA_UNITS( 7 ) = ' ' 
+            MEDIA_UNITS( 7 ) = '' 
             MEDIA_DESCR( 7 ) = 'NH4+/H+ in Soil layer 1'
             MEDIA_NAMES( 8 ) = 'Gamma2          '
-            MEDIA_UNITS( 8 ) = ' ' 
+            MEDIA_UNITS( 8 ) = '' 
             MEDIA_DESCR( 8 ) = 'NH4+/H+ in Soil layer 2'
             MEDIA_NAMES( 9 ) = 'MHpsl1'
-            MEDIA_UNITS( 9 ) = 'mol/l' 
+            MEDIA_UNITS( 9 ) = 'mol L-1' 
             MEDIA_DESCR( 9 ) = 'Molar H+ in Soil layer 1'
             MEDIA_NAMES( 10 ) = 'MHpsl2         '
-            MEDIA_UNITS( 10 ) = 'mol/l' 
+            MEDIA_UNITS( 10 ) = 'mol L-1' 
             MEDIA_DESCR( 10 ) = 'Molar H+ in Soil layer 2'
             
          End If
@@ -189,7 +183,6 @@ C--------------------------------------------------------------------------
          Integer,     Intent( In ) :: TSTEP
 
          Character( 16 ) :: PNAME = 'OPASX_MEDIA     '
-         Character( 80 ) :: VARDESC
          Character( 96 ) :: MSG = ' '
 
          Integer  N, V, L
@@ -253,7 +246,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'ppmV g-1'
+                  UNITS3D( N ) = 'ppmV'
                   VDESC3D( N ) = 'gas phase concentration'
                End Do
 
@@ -322,7 +315,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'ppmV g'
+                  UNITS3D( N ) = 'ppmV'
                   VDESC3D( N ) = 'gas phase concentration'
                End Do
 
@@ -391,7 +384,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'ppmV g'
+                  UNITS3D( N ) = 'ppmV'
                   VDESC3D( N ) = 'gas phase concentration'
                End Do
 
@@ -421,7 +414,7 @@ C--------------------------------------------------------------------------
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
-                  UNITS3D( N ) = 'ppmV g'
+                  UNITS3D( N ) = 'ppmV'
                   VDESC3D( N ) = 'gas phase concentration'
                End Do
 
@@ -474,10 +467,10 @@ C--------------------------------------------------------------------------
          Character( 16 ) :: PNAME = 'WRASX_MEDIA     '
          
 !*****************************************************************************         
+         
          If ( HGBIDI ) Then
-            INIT_LAI = .FALSE.   
-            INIT_ATX = .FALSE.   
-            INIT_ASX = .FALSE.
+            INIT_LAI  = .FALSE.   
+            INIT_COMP = .FALSE.   
          End If
          
          If ( ABFLUX ) Then

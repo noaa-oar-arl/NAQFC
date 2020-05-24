@@ -1,7 +1,7 @@
 #   Makefile generated for parallel execution using program bldmake
 #
-#   Generation date [02/20/2020  12:30:45]
-#   Configuration file [/u/Youhua.Tang/noscrub/CMAQ/CMAQ_5.3.1/CCTM/scripts/BLD_CCTM_v531_intel/CCTM_v531.cfg.bld]
+#   Generation date [02/27/2020  20:35:10]
+#   Configuration file [/u/Youhua.Tang/noscrub/CMAQ/CMAQ_5.3.1/CCTM/scripts/BLD_CCTM_v531_intel_stage/CCTM_v531.cfg.bld]
 #   Using GIT repository [/u/Youhua.Tang/noscrub/CMAQ/CMAQ_5.3.1/CCTM/src]
 #   With mechanism [cb6r3_ae7_aq]
 #   Full Compiler Paths when Makefile was Built:
@@ -28,8 +28,7 @@
  CC = icc
 
  LIB = /gpfs/hps3/emc/naqfc/noscrub/Youhua.Tang/CMAQ/ioapi-3.2/Linux2_x86_64ifort
- include_path = -I $(LIB) \
-                -I/opt/cray/mpt/7.2.0/gni/mpich2-intel/140/include -I.
+ include_path = -I$(LIB) -I/opt/cray/mpt/7.2.0/gni/mpich2-intel/140/include -I.
 
  WARN = 
  FSTD = -O3 -fno-alias -mp1 -fp-model source -ftz -simd -align all -xHost -vec-guard-write -unroll-aggressive
@@ -46,9 +45,9 @@
      f_FLAGS   = -fixed -132 $(FSTD) $(include_path)
      f90_FLAGS = -free $(FSTD) $(include_path)
  endif
-
+ 
  MPI_INC  = /opt/cray/mpt/7.2.0/gni/mpich2-intel/140/include# $(LIB)/mpi/include
-
+ 
  F_FLAGS   = $(f_FLAGS)
  F90_FLAGS = $(f90_FLAGS)
  C_FLAGS   = -O2 -DFLDMN -I$(MPI_INC) -I.
@@ -61,7 +60,7 @@
  CPP = $(FC)
  cpp_flags = \
   -Dparallel \
-  -Dm3dry_opt \
+  -Dstage_opt \
   -DSUBST_BARRIER=SE_BARRIER \
   -DSUBST_GLOBAL_MAX=SE_GLOBAL_MAX \
   -DSUBST_GLOBAL_MIN=SE_GLOBAL_MIN \
@@ -90,8 +89,8 @@
 
  IOAPI  = -L$(LIB) -lioapi
  NETCDF = -L/opt/cray/netcdf/4.3.2/INTEL/140/lib -lnetcdff -lnetcdf \
- -L/gpfs/hps/usrx/local/prod/HDF5/1.8.9/serial/intel/haswell/lib \
- -lhdf5_fortran -lhdf5_hl -lhdf5 -lz -openmp
+  -L/gpfs/hps/usrx/local/prod/HDF5/1.8.9/serial/intel/haswell/lib \
+  -lhdf5_fortran -lhdf5_hl -lhdf5 -lz -openmp
 # NETCDF = -L/gpfs/hps/usrx/local/prod/NetCDF/3.6.3/intel/haswell/lib -lnetcdf -openmp
  LIBRARIES = $(IOAPI) $(NETCDF) 
 
@@ -114,35 +113,38 @@ GLOBAL_MODULES = \
   PA_DEFN.o \
   VGRD_DEFN.o \
   STM_VARS.o \
-  DEPVVARS.o \
+  LSM_MOD.o \
   VDIFF_DATA.o \
   GRID_CONF.o \
-  LSM_MOD.o \
-  depv_data_module.o \
   CGRID_SPCS.o \
+  STAGE_DATA.o \
+  MOSAIC_MOD.o \
   BIDI_MOD.o \
   UDTYPES.o \
   stack_group_data_module.o \
-  em_param_module.o \
   biog_emis_param_module.o \
-  lus_data_module.o \
-  AEROMET_DATA.o \
   crop_data_module.o \
-  STK_PRMS.o \
-  centralized_io_util_module.o \
-  PTBILIN.o \
+  em_param_module.o \
+  AEROMET_DATA.o \
   AERO_DATA.o \
+  lus_data_module.o \
   EMIS_VARS.o \
-  centralized_io_module.o \
-  STK_EMIS.o \
+  STK_PRMS.o \
   LUS_DEFN.o \
-  LTNG_DEFN.o \
-  BIOG_EMIS.o \
-  PCGRID_DEFN.o \
-  BEIS_DEFN.o \
+  depv_data_module.o \
+  PTBILIN.o \
+  centralized_io_util_module.o \
+  STK_EMIS.o \
+  centralized_io_module.o \
+  PRECURSOR_DATA.o \
   ASX_DATA_MOD.o \
-  SSEMIS.o \
-  PTMET.o \
+  HGSIM.o \
+  NH3_BIDI_MOD.o \
+  STAGE_MOD.o \
+  LTNG_DEFN.o \
+  DUST_EMIS.o \
+  PCGRID_DEFN.o \
+  BIOG_EMIS.o \
   AVG_CONC.o \
   CSQY_DATA.o \
   CLOUD_OPTICS.o \
@@ -152,11 +154,11 @@ GLOBAL_MODULES = \
   AERO_PHOTDATA.o \
   WVEL_DEFN.o \
   RXNS_FUNC_MODULE.o \
-  PRECURSOR_DATA.o \
+  BEIS_DEFN.o \
   AEROSOL_CHEMISTRY.o \
   AERO_BUDGET.o \
   DEPV_DEFN.o \
-  PT3D_DEFN.o \
+  PTMET.o \
   SA_DEFN.o \
   PHOT_MOD.o \
   PAGRD_DEFN.o \
@@ -166,12 +168,12 @@ GLOBAL_MODULES = \
   MGEMIS.o \
   SA_IRR_DEFN.o \
   SA_LAYERS.o \
-  VDIFF_MAP.o \
-  DUST_EMIS.o \
+  PT3D_DEFN.o \
+  SSEMIS.o \
   STD_CONC.o \
   vertext_module.o \
   STM_MODULE.o \
-  HGSIM.o \
+  VDIFF_MAP.o \
   AERO_EMIS.o \
   EMIS_DEFN.o
 
@@ -267,23 +269,24 @@ HDIFF = \
 VDIFF = \
   VDIFF_DIAG.o \
   SEDIMENTATION.o \
-  aero_depv.o \
   aero_sedv.o \
   conv_cgrid.o \
   eddyx.o \
   matrix1.o \
   opddep.o \
+  opddep_fst.o \
+  opddep_mos.o \
   rddepv.o \
   tri.o \
   vdiffacmx.o \
   vdiffproc.o
 
 DEPV = \
-  ABFLUX_MOD.o \
   cgrid_depv.o \
   gas_depv_map.o \
-  m3dry.o \
-  opdepv_diag.o
+  opdepv_diag.o \
+  opdepv_fst.o \
+  opdepv_mos.o
 
 EMIS = \
   cropcal.o \
@@ -571,8 +574,8 @@ hcdiff3d.o:	GRID_CONF.o UTILIO_DEFN.o centralized_io_module.o \
 hdiff.o:	GRID_CONF.o CGRID_SPCS.o UTILIO_DEFN.o se_modules.o SA_DEFN.o \
 		$(BASE_INC)/PE_COMM.EXT $(BASE_INC)/CONST.EXT
 rho_j.o:	GRID_CONF.o UTILIO_DEFN.o centralized_io_module.o $(BASE_INC)/FILES_CTM.EXT
-ASX_DATA_MOD.o:	RUNTIME_VARS.o GRID_CONF.o LSM_MOD.o DEPVVARS.o \
-		centralized_io_module.o UTILIO_DEFN.o se_modules.o $(BASE_INC)/PE_COMM.EXT \
+ASX_DATA_MOD.o:	GRID_CONF.o LSM_MOD.o centralized_io_module.o \
+		UTILIO_DEFN.o MOSAIC_MOD.o se_modules.o $(BASE_INC)/PE_COMM.EXT \
 		$(BASE_INC)/CONST.EXT $(BASE_INC)/FILES_CTM.EXT
 SEDIMENTATION.o:	CGRID_SPCS.o GRID_CONF.o ASX_DATA_MOD.o VDIFF_MAP.o \
 		UTILIO_DEFN.o VDIFF_DIAG.o $(BASE_INC)/CONST.EXT $(BASE_INC)/FILES_CTM.EXT
@@ -580,41 +583,53 @@ VDIFF_DIAG.o:	RUNTIME_VARS.o UTILIO_DEFN.o GRID_CONF.o CGRID_SPCS.o \
 		se_modules.o $(BASE_INC)/FILES_CTM.EXT
 VDIFF_MAP.o:	VDIFF_DATA.o CGRID_SPCS.o UTILIO_DEFN.o DEPV_DEFN.o \
 		$(BASE_INC)/EMISPRM.EXT
-aero_depv.o:	GRID_CONF.o RXNS_DATA_MODULE.o CGRID_SPCS.o UTILIO_DEFN.o \
-		AERO_DATA.o AEROMET_DATA.o ASX_DATA_MOD.o $(BASE_INC)/FILES_CTM.EXT
 aero_sedv.o:	GRID_CONF.o CGRID_SPCS.o UTILIO_DEFN.o ASX_DATA_MOD.o \
 		AERO_DATA.o AEROMET_DATA.o
 conv_cgrid.o:	GRID_CONF.o CGRID_SPCS.o UTILIO_DEFN.o centralized_io_module.o \
 		SA_DEFN.o $(BASE_INC)/CONST.EXT $(BASE_INC)/FILES_CTM.EXT
 eddyx.o:	GRID_CONF.o ASX_DATA_MOD.o UTILIO_DEFN.o
 matrix1.o:	VGRD_DEFN.o CGRID_SPCS.o UTILIO_DEFN.o
-opddep.o:	RUNTIME_VARS.o GRID_CONF.o CGRID_SPCS.o UTILIO_DEFN.o \
+opddep.o:	GRID_CONF.o CGRID_SPCS.o UTILIO_DEFN.o $(BASE_INC)/FILES_CTM.EXT
+opddep_fst.o:	GRID_CONF.o CGRID_SPCS.o UTILIO_DEFN.o LSM_MOD.o \
+		$(BASE_INC)/FILES_CTM.EXT
+opddep_mos.o:	GRID_CONF.o CGRID_SPCS.o UTILIO_DEFN.o LSM_MOD.o \
 		$(BASE_INC)/FILES_CTM.EXT
 rddepv.o:	HGRD_DEFN.o RXNS_DATA_MODULE.o CGRID_SPCS.o UTILIO_DEFN.o \
 		centralized_io_module.o $(BASE_INC)/FILES_CTM.EXT
 tri.o:	VGRD_DEFN.o CGRID_SPCS.o
 vdiffacmx.o:	CGRID_SPCS.o GRID_CONF.o EMIS_VARS.o DEPV_DEFN.o \
-		ASX_DATA_MOD.o VDIFF_MAP.o UTILIO_DEFN.o VDIFF_DIAG.o HGRD_DEFN.o \
-		SA_DEFN.o $(BASE_INC)/FILES_CTM.EXT
+		ASX_DATA_MOD.o VDIFF_MAP.o UTILIO_DEFN.o BIDI_MOD.o LSM_MOD.o \
+		MOSAIC_MOD.o VDIFF_DIAG.o HGRD_DEFN.o SA_DEFN.o $(BASE_INC)/FILES_CTM.EXT
 vdiffproc.o:	CGRID_SPCS.o GRID_CONF.o EMIS_VARS.o EMIS_DEFN.o \
 		DEPV_DEFN.o ASX_DATA_MOD.o VDIFF_MAP.o UTILIO_DEFN.o BIDI_MOD.o \
-		HGSIM.o SEDIMENTATION.o VDIFF_DIAG.o PA_DEFN.o SA_DEFN.o $(BASE_INC)/FILES_CTM.EXT
-ABFLUX_MOD.o:	HGRD_DEFN.o UTILIO_DEFN.o BIDI_MOD.o depv_data_module.o \
-		ASX_DATA_MOD.o LSM_MOD.o $(BASE_INC)/CONST.EXT $(BASE_INC)/FILES_CTM.EXT
-BIDI_MOD.o:	RUNTIME_VARS.o GRID_CONF.o CGRID_SPCS.o UTILIO_DEFN.o \
+		HGSIM.o LSM_MOD.o SEDIMENTATION.o VDIFF_DIAG.o PA_DEFN.o SA_DEFN.o \
+		$(BASE_INC)/FILES_CTM.EXT
+BIDI_MOD.o:	GRID_CONF.o CGRID_SPCS.o UTILIO_DEFN.o RUNTIME_VARS.o \
 		$(BASE_INC)/FILES_CTM.EXT
 DEPV_DEFN.o:	RUNTIME_VARS.o HGRD_DEFN.o RXNS_DATA_MODULE.o CGRID_SPCS.o \
-		DEPVVARS.o UTILIO_DEFN.o LSM_MOD.o BIDI_MOD.o ASX_DATA_MOD.o \
-		$(BASE_INC)/CONST.EXT $(BASE_INC)/FILES_CTM.EXT
+		STAGE_DATA.o UTILIO_DEFN.o LSM_MOD.o BIDI_MOD.o STAGE_MOD.o \
+		MOSAIC_MOD.o ASX_DATA_MOD.o $(BASE_INC)/CONST.EXT $(BASE_INC)/FILES_CTM.EXT
 HGSIM.o:	HGRD_DEFN.o UTILIO_DEFN.o ASX_DATA_MOD.o LSM_MOD.o BIDI_MOD.o \
-		DEPVVARS.o $(BASE_INC)/CONST.EXT $(BASE_INC)/FILES_CTM.EXT
+		$(BASE_INC)/CONST.EXT $(BASE_INC)/FILES_CTM.EXT
 LSM_MOD.o:	HGRD_DEFN.o UTILIO_DEFN.o RUNTIME_VARS.o $(BASE_INC)/FILES_CTM.EXT
+MOSAIC_MOD.o:	HGRD_DEFN.o LSM_MOD.o UTILIO_DEFN.o STAGE_DATA.o \
+		CGRID_SPCS.o RUNTIME_VARS.o GRID_CONF.o $(BASE_INC)/FILES_CTM.EXT
+NH3_BIDI_MOD.o:	HGRD_DEFN.o UTILIO_DEFN.o BIDI_MOD.o ASX_DATA_MOD.o \
+		LSM_MOD.o depv_data_module.o centralized_io_module.o $(BASE_INC)/CONST.EXT \
+		$(BASE_INC)/FILES_CTM.EXT
+STAGE_DATA.o:	CGRID_SPCS.o UTILIO_DEFN.o
+STAGE_MOD.o:	GRID_CONF.o LSM_MOD.o ASX_DATA_MOD.o UTILIO_DEFN.o \
+		CGRID_SPCS.o STAGE_DATA.o AERO_DATA.o NH3_BIDI_MOD.o MOSAIC_MOD.o \
+		HGSIM.o AEROMET_DATA.o RXNS_DATA_MODULE.o $(BASE_INC)/CONST.EXT \
+		$(BASE_INC)/FILES_CTM.EXT
 cgrid_depv.o:	CGRID_SPCS.o HGRD_DEFN.o UTILIO_DEFN.o
-gas_depv_map.o:	CGRID_SPCS.o DEPVVARS.o UTILIO_DEFN.o
-m3dry.o:	RUNTIME_VARS.o HGRD_DEFN.o DEPVVARS.o VGRD_DEFN.o UTILIO_DEFN.o \
-		se_modules.o ABFLUX_MOD.o ASX_DATA_MOD.o BIDI_MOD.o HGSIM.o \
-		centralized_io_module.o $(BASE_INC)/PE_COMM.EXT $(BASE_INC)/FILES_CTM.EXT
-opdepv_diag.o:	GRID_CONF.o DEPVVARS.o UTILIO_DEFN.o $(BASE_INC)/FILES_CTM.EXT
+depv_data_module.o:	BIDI_MOD.o
+gas_depv_map.o:	CGRID_SPCS.o STAGE_DATA.o UTILIO_DEFN.o
+opdepv_diag.o:	GRID_CONF.o STAGE_DATA.o UTILIO_DEFN.o $(BASE_INC)/FILES_CTM.EXT
+opdepv_fst.o:	GRID_CONF.o STAGE_DATA.o UTILIO_DEFN.o LSM_MOD.o \
+		$(BASE_INC)/FILES_CTM.EXT
+opdepv_mos.o:	GRID_CONF.o STAGE_DATA.o UTILIO_DEFN.o LSM_MOD.o \
+		$(BASE_INC)/FILES_CTM.EXT
 BEIS_DEFN.o:	RUNTIME_VARS.o HGRD_DEFN.o CGRID_SPCS.o BIOG_EMIS.o \
 		UTILIO_DEFN.o EMIS_VARS.o $(BASE_INC)/CONST.EXT
 BIOG_EMIS.o:	RUNTIME_VARS.o EMIS_VARS.o biog_emis_param_module.o \
