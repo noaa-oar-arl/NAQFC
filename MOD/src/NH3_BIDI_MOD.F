@@ -225,6 +225,19 @@ C-------------------------------------------------------------------------------
             F2_NH4 = Nit2 / 0.95 + L2_MIN
 ! Calculate grid cell values from the EPIC crop specific data            
             frac_ag  = sum(Beld_ag,DIM=3)
+! Added check to make sure values aren't NaN and if so, set to zero for modified gamma calc
+! NAQFC-PCC
+            Do r = 1, nrows
+               Do c = 1, ncols
+                  Do l = 1, e2c_cats
+                     If( IsNaN( NH4ps1( c,r,l ) )) NH4ps1( c,r,l )=0.0 
+                     If( IsNaN( NH4ps2( c,r,l ) )) NH4ps2( c,r,l )=0.0
+                     If( IsNaN( pHs1( c,r,l ) )) pHs1( c,r,l )=0.0
+                     If( IsNaN( pHs1( c,r,l ) )) pHs1( c,r,l )=0.0 
+                  End Do
+               End Do 
+            End Do
+
             Do l = 1, e2c_cats
                Where( pHs1(:,:,l) .Gt. 4.0 .And. pHs1(:,:,l) .Lt. 9.0 .And. Beld_ag(:,:,l) .Gt. 0.0 )
                   MHp1   = MHp1   + Beld_ag(:,:,l) * 10.0 ** (-pHs1(:,:,l) )
@@ -235,10 +248,10 @@ C-------------------------------------------------------------------------------
                   Knit2  = Knit2  + Beld_ag(:,:,l) * Nit2(:,:,l)
                   NH4_G1 = NH4_G1 + Beld_ag(:,:,l) * NH4ps1(:,:,l)
                   NH4_G2 = NH4_G2 + Beld_ag(:,:,l) * NH4ps2(:,:,l)
-                  gamma1 = gamma1 + convl1 * NH4ps1(:,:,l) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
-                  gamma2 = gamma2 + convl2 * NH4ps2(:,:,l) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
-                  fagam1 = fagam1 + convl1 * F1_NH4(:,:,l) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
-                  fagam2 = fagam2 + convl2 * F2_NH4(:,:,l) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
+                  gamma1 = gamma1 + convl1 * max(NH4ps1(:,:,l),0.0) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
+                  gamma2 = gamma2 + convl2 * max(NH4ps2(:,:,l),0.0) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
+                  fagam1 = fagam1 + convl1 * max(F1_NH4(:,:,l),0.0) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
+                  fagam2 = fagam2 + convl2 * max(F2_NH4(:,:,l),0.0) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
                End Where
                If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
                   frac_ir = frac_ir + Beld_ag( :,:,l )
@@ -645,7 +658,8 @@ C-------------------------------------------------------------------------------
             Knit   = Knit2( C,R ) 
             gamma1( C,R ) = gamma1( C,R ) * exp( -Knit1( c,r ) * dt ) 
          End If
-
+         print*, 'MHp = ', MHp, 'frac_ag = ', frac_ag( C,R )
+         
 ! if MHp = 0.0 then there is no EPIC data for the grid cell or is not agricultural
          If( MHp .Eq. 0.0 .Or. frac_ag( C,R ) .Lt. 1.0e-3 ) Return
 ! Note that the kg to g and m3 to L units cancel 
@@ -660,7 +674,11 @@ C-------------------------------------------------------------------------------
          MNHx = gam * MHp
 ! Estimate the soil evasion rate assuming that the flux = MNHx*(1-exp(-kvs*dt)) where dt = 1 s and the flux is negative for deposition to the
 ! soil and positive for evasion from the soil. 
+         print*, 'NH3_flux=', NH3_flux
+         print*, 'MNHx=', MNHx
+
          If( NH3_flux .lt. 0.0 ) Then
+         print*, 'deposition'
             Kvs    = 0.0
 ! In epic the nitrification and evasion rates are added in a combined nitrification/evasion rate. 
 ! Then the emissions are assumed to be 5% of the total combined loss. Here we calcuate the nitrification/evasion rate as in EPIC and then the
@@ -678,6 +696,7 @@ C-------------------------------------------------------------------------------
                gam = natgam
             End If
           Else ! evasion
+          print*, 'evasion'
             Kvs    = -log(1.0-NH3_flux/MNHx)
 ! In epic the nitrification and evasion rates are added in a combined nitrification/evasion rate. 
 ! Then the emissions are assumed to be 5% of the total combined loss. Here we calcuate the nitrification/evasion rate as in EPIC and then the
@@ -693,6 +712,7 @@ C-------------------------------------------------------------------------------
                gam = natgam
             End If
           End If
+         print*,'Kvs=', Kvs
 ! Update soil concentrations
          If(zsoil .Eq. zsoil1 ) Then
             gamma1( C,R ) = gam 
