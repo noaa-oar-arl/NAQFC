@@ -230,10 +230,10 @@ C-------------------------------------------------------------------------------
             Do r = 1, nrows
                Do c = 1, ncols
                   Do l = 1, e2c_cats
-                     If( IsNaN( NH4ps1( c,r,l ) )) NH4ps1( c,r,l )=0.0 
-                     If( IsNaN( NH4ps2( c,r,l ) )) NH4ps2( c,r,l )=0.0
-                     If( IsNaN( pHs1( c,r,l ) )) pHs1( c,r,l )=0.0
-                     If( IsNaN( pHs1( c,r,l ) )) pHs1( c,r,l )=0.0 
+                     If( IsNaN( NH4ps1( c,r,l ) )) NH4ps1( c,r,l )=tiny(0.0) 
+                     If( IsNaN( NH4ps2( c,r,l ) )) NH4ps2( c,r,l )=tiny(0.0)
+                     If( IsNaN( pHs1( c,r,l ) )) pHs1( c,r,l )=tiny(0.0)
+                     If( IsNaN( pHs1( c,r,l ) )) pHs1( c,r,l )=tiny(0.0) 
                   End Do
                End Do 
             End Do
@@ -248,10 +248,10 @@ C-------------------------------------------------------------------------------
                   Knit2  = Knit2  + Beld_ag(:,:,l) * Nit2(:,:,l)
                   NH4_G1 = NH4_G1 + Beld_ag(:,:,l) * NH4ps1(:,:,l)
                   NH4_G2 = NH4_G2 + Beld_ag(:,:,l) * NH4ps2(:,:,l)
-                  gamma1 = gamma1 + convl1 * max(NH4ps1(:,:,l),0.0) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
-                  gamma2 = gamma2 + convl2 * max(NH4ps2(:,:,l),0.0) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
-                  fagam1 = fagam1 + convl1 * max(F1_NH4(:,:,l),0.0) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
-                  fagam2 = fagam2 + convl2 * max(F2_NH4(:,:,l),0.0) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
+                  gamma1 = gamma1 + convl1 * max(NH4ps1(:,:,l),tiny(0.0)) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
+                  gamma2 = gamma2 + convl2 * max(NH4ps2(:,:,l),tiny(0.0)) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
+                  fagam1 = fagam1 + convl1 * max(F1_NH4(:,:,l),tiny(0.0)) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
+                  fagam2 = fagam2 + convl2 * max(F2_NH4(:,:,l),tiny(0.0)) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
                End Where
                If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
                   frac_ir = frac_ir + Beld_ag( :,:,l )
@@ -697,7 +697,9 @@ C-------------------------------------------------------------------------------
             End If
           Else ! evasion
           print*, 'evasion'
-            Kvs    = -log(1.0-NH3_flux/MNHx)
+!            Kvs    = -log(1.0-NH3_flux/MNHx)
+             Kvs    = -log(max((1.0-NH3_flux/MNHx),tiny(0.0)))
+             print*, 'max((1.0-NH3_flux/MNHx),tiny(0.0))=', max((1.0-NH3_flux/MNHx),tiny(0.0))
 ! In epic the nitrification and evasion rates are added in a combined nitrification/evasion rate. 
 ! Then the emissions are assumed to be 5% of the total combined loss. Here we calcuate the nitrification/evasion rate as in EPIC and then the
 ! maximum rate is adjusted for the EPIC evasion because we will calculate the evasion seperately and add the rate to 
@@ -713,6 +715,7 @@ C-------------------------------------------------------------------------------
             End If
           End If
          print*,'Kvs=', Kvs
+         print*, 'gam=', gam
 ! Update soil concentrations
          If(zsoil .Eq. zsoil1 ) Then
             gamma1( C,R ) = gam 
