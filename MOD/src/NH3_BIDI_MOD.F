@@ -271,8 +271,9 @@ C-------------------------------------------------------------------------------
             Where( BDs2 .Lt. 1.0 ) BDs2 = 1.6
 ! prevent missmatched data between soil and daily files
             Where( MHp1 .Eq. 0.0 .Or. MHp2 .Eq. 0.0 )
-               gamma1 = 0.0
-               gamma2 = 0.0  
+               gamma1  = 0.0
+               gamma2  = 0.0
+               frac_ag = 0.0  
             End Where
 
             Where( NH4_G1 .Gt. 0.0 )
@@ -352,8 +353,9 @@ C-------------------------------------------------------------------------------
             Where( BDs2 .Lt. 1.0 ) BDs2 = 1.6
 ! prevent missmatched data between soil and daily files
             Where( MHp1 .Eq. 0.0 .Or. MHp2 .Eq. 0.0 )
-               gamma1 = 0.0
-               gamma2 = 0.0  
+               gamma1  = 0.0
+               gamma2  = 0.0
+               frac_ag = 0.0  
             End Where
 
             Where( NH4_G1 .Gt. 0.0 )
@@ -658,8 +660,7 @@ C-------------------------------------------------------------------------------
             Knit   = Knit2( C,R ) 
             gamma1( C,R ) = gamma1( C,R ) * exp( -Knit1( c,r ) * dt ) 
          End If
-         print*, 'MHp = ', MHp, 'frac_ag = ', frac_ag( C,R )
-         
+
 ! if MHp = 0.0 then there is no EPIC data for the grid cell or is not agricultural
          If( MHp .Eq. 0.0 .Or. frac_ag( C,R ) .Lt. 1.0e-3 ) Return
 ! Note that the kg to g and m3 to L units cancel 
@@ -674,11 +675,8 @@ C-------------------------------------------------------------------------------
          MNHx = gam * MHp
 ! Estimate the soil evasion rate assuming that the flux = MNHx*(1-exp(-kvs*dt)) where dt = 1 s and the flux is negative for deposition to the
 ! soil and positive for evasion from the soil. 
-         print*, 'NH3_flux=', NH3_flux
-         print*, 'MNHx=', MNHx
 
          If( NH3_flux .lt. 0.0 ) Then
-         print*, 'deposition'
             Kvs    = 0.0
 ! In epic the nitrification and evasion rates are added in a combined nitrification/evasion rate. 
 ! Then the emissions are assumed to be 5% of the total combined loss. Here we calcuate the nitrification/evasion rate as in EPIC and then the
@@ -696,10 +694,7 @@ C-------------------------------------------------------------------------------
                gam = natgam
             End If
           Else ! evasion
-          print*, 'evasion'
-!            Kvs    = -log(1.0-NH3_flux/MNHx)
-             Kvs    = -log(max((1.0-NH3_flux/MNHx),tiny(0.0)))
-             print*, 'max((1.0-NH3_flux/MNHx),tiny(0.0))=', max((1.0-NH3_flux/MNHx),tiny(0.0))
+             Kvs    = -log(max((1.0-NH3_flux/max(MNHx,tiny(0.0))),tiny(0.0)))
 ! In epic the nitrification and evasion rates are added in a combined nitrification/evasion rate. 
 ! Then the emissions are assumed to be 5% of the total combined loss. Here we calcuate the nitrification/evasion rate as in EPIC and then the
 ! maximum rate is adjusted for the EPIC evasion because we will calculate the evasion seperately and add the rate to 
@@ -714,8 +709,6 @@ C-------------------------------------------------------------------------------
                gam = natgam
             End If
           End If
-         print*,'Kvs=', Kvs
-         print*, 'gam=', gam
 ! Update soil concentrations
          If(zsoil .Eq. zsoil1 ) Then
             gamma1( C,R ) = gam 

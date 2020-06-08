@@ -405,7 +405,6 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
       IF ( .NOT. MOSAIC ) THEN
-         print*,'DDEP=', DDEP
          CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
      &                   cngrd = CNGRD )
       ELSE
