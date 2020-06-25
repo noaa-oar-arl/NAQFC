@@ -1,4 +1,4 @@
-`!------------------------------------------------------------------------!
+!------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
 !  from these groups: Federal Government employees, contractors working  !
@@ -147,11 +147,11 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: RJACM    ( :,:,: )  ! reciprocal mid-layer Jacobian
          Real,    Allocatable :: RJACF    ( :,:,: )  ! reciprocal full-layer Jacobian
          Real,    Allocatable :: RRHOJ    ( :,:,: )  ! reciprocal density X Jacobian
-         Real,    Allocatable :: CLAYF    ( :,:,: )  ! Fractional Clay content - Fengsha
-         Real,    Allocatable :: SANDF    ( :,:,: )  ! Fractional Sand content - Fengsha
-         Real,    Allocatable :: DRAG     ( :,:,: )  ! Drag Partition - Fengsha
-         Real,    Allocatable :: SSM      ( :,:,: )  ! Erosion Potential - Fengsha
-         Real,    Allocatable :: UTHR     ( :,:,: )  ! Threshold Velocity for Fengsha
+         Real,    Allocatable :: CLAYF    ( :,: )  ! Fractional Clay content - Fengsha
+         Real,    Allocatable :: SANDF    ( :,: )  ! Fractional Sand content - Fengsha
+         Real,    Allocatable :: DRAG     ( :,: )  ! Drag Partition - Fengsha
+         Real,    Allocatable :: SSM      ( :,: )  ! Erosion Potential - Fengsha
+         Real,    Allocatable :: UTHR     ( :,: )  ! Threshold Velocity for Fengsha
       End Type MET_Type
       
       Type :: GRID_Type
