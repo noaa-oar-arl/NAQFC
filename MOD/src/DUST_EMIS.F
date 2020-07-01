@@ -717,7 +717,7 @@ C --------- ###### Start Main Loop ###### ---------
      &           ( Met_Data%rn( c,r ) + Met_Data%rc( c,r ) .le. 0.0254 ) .and. ! rn, rc = [cm]
      &           ( Met_Data%snocov( c,r ) .lt. 0.001 ) .and. ! less than 0.1% snow coverage
      &           ( Met_Data%ssm( c,r ) .gt. 0.0 ) .and.
-     &           ( clayf(c,r) .gt. 0.0 ) .and.
+     &           ( Met_Data%clayf(c,r) .gt. 0.0 ) .and.
      &           ( Met_Data%drag(c,r) .gt. 0.0) ) then ! ssm > 0.0
                   !---Dust possiblity 1,2,3,5
                   
@@ -729,9 +729,9 @@ C --------- ###### Start Main Loop ###### ---------
 C Calculate maximum amount of the water absorbed
 C    w` = 0.0014(%clay)**2 + 0.17(%clay) - w` in %
 C     Fecan et al. [1999,Annales Geophys.,17,144-157]
-              wmax  ( c,r ) = clayf( c,r ) * clayf( c,r )* .0014d0 + 0.17d0 * clayf( c,r )
-              soilm1( c,r ) = 0.489 - 0.00126 * sandf(c,r) ! volumetric soil moisture saturation limit
-              soimt(  c,r ) = dust_volumetric_to_gravimetric( Met_Data%soim1( c,r ), clayf( c,r ), sandf( c,r )) 
+              wmax  ( c,r ) = Met_Data%clayf( c,r ) * Met_Data%clayf( c,r )* .0014d0 + 0.17d0 * Met_Data%clayf( c,r )
+              soilm1( c,r ) = 0.489 - 0.00126 * Met_Data%sandf(c,r) ! volumetric soil moisture saturation limit
+              soimt(  c,r ) = dust_volumetric_to_gravimetric( Met_Data%soim1( c,r ), Met_Data%clayf( c,r ), Met_Data%sandf( c,r )) 
               if ( Met_Data%soim1( c,r ) .le. soilm1( c,r ) ) then 
 C---Soil moisture effect on U*t
                   if ( soimt( c,r ) .le. 0.01 * wmax( c,r ) ) then   ! wmax in [%]
@@ -742,7 +742,7 @@ C---Soil moisture effect on U*t
                   end if
  
                   
-                  kvh( c,r ) = 10. ** (0.134 * clayf( c,r ) - 6.0) 
+                  kvh( c,r ) = 10. ** (0.134 * Met_Data%clayf( c,r ) - 6.0) 
                   hflux = dust_hflux( Met_Data%ustar( c,r),
      &                                fmoit( c,r ),
      &                                Met_Data%drag( c,r ),
@@ -753,7 +753,7 @@ C---Soil moisture effect on U*t
                         qam( c,r ) = qam( c,r ) + vflux * rlay1hgt * 0.01    ! [g/m**3/s]
                   if (qam(c,r) < 0) then
                         write(*,*) 'Clay SSM drag ut fmoit c r'
-                        write(*,*) clayf(c,r),Met_Data%ssm(c,r),Met_Data%drag(c,r), Met_Data%uthr(c,r), fmoit(c,r), c,r
+                        write(*,*) Met_Data%clayf(c,r),Met_Data%ssm(c,r),Met_Data%drag(c,r), Met_Data%uthr(c,r), fmoit(c,r), c,r
                   end if
                      dust_em( c,r ) = dust_em( c,r ) + qam( c,r )
 
