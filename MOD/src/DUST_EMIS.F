@@ -718,7 +718,7 @@ C --------- ###### Start Main Loop ###### ---------
      &           ( Met_Data%snocov( c,r ) .lt. 0.001 ) .and. ! less than 0.1% snow coverage
      &           ( Met_Data%ssm( c,r ) .gt. 0.0 ) .and.
      &           ( clayf(c,r) .gt. 0.0 ) .and.
-     &.          ( Met_Data%drag(c,r) .gt. 0.0) ) then ! ssm > 0.0
+     &           ( Met_Data%drag(c,r) .gt. 0.0) ) then ! ssm > 0.0
                   !---Dust possiblity 1,2,3,5
                   
                   
