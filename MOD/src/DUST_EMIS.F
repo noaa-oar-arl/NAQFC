@@ -729,10 +729,9 @@ C --------- ###### Start Main Loop ###### ---------
 C Calculate maximum amount of the water absorbed
 C    w` = 0.0014(%clay)**2 + 0.17(%clay) - w` in %
 C     Fecan et al. [1999,Annales Geophys.,17,144-157]
-              wmax  ( c,r ) = Met_Data%clayf( c,r ) * Met_Data%clayf( c,r )* .0014d0 + 0.17d0 * Met_Data%clayf( c,r )
-              soilm1( c,r ) = 0.489 - 0.00126 * Met_Data%sandf(c,r) ! volumetric soil moisture saturation limit
+              !wmax  ( c,r ) = Met_Data%clayf( c,r ) * Met_Data%clayf( c,r )* .0014d0 + 0.17d0 * Met_Data%clayf( c,r )
+              wmax  ( c,r ) = (100.*Met_Data%clayf( c,r )) * (100.*Met_Data%clayf( c,r ))* .0014d0 + 0.17d0 * (100.*Met_Data%clayf( c,r ))
               soimt(  c,r ) = dust_volumetric_to_gravimetric( Met_Data%soim1( c,r ), Met_Data%clayf( c,r ), Met_Data%sandf( c,r )) 
-              if ( Met_Data%soim1( c,r ) .le. soilm1( c,r ) ) then 
 C---Soil moisture effect on U*t
                   if ( soimt( c,r ) .le. 0.01 * wmax( c,r ) ) then   ! wmax in [%]
                      fmoit( c,r ) = 1.0
@@ -763,7 +762,6 @@ C Adjust dust emissions for transport factors
 
                   dust_em( c,r ) = dust_em( c,r ) * tfa( c,r ) * tfb( c,r )
 
-               end if   ! if soil moisture
             end if  ! if rain & land & snow
 
          end do   ! c
