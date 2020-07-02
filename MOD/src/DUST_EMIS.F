@@ -849,7 +849,6 @@ C               do m = 1, n_dlcat+1
 C                  diagv( m+n ) = fruf( c,r )
 C               end do
 C               n = n + n_dlcat + 1
-
                diagv( n+1  ) = fmoit( c,r )              ! 'Soil_Moist_Fac  '
                diagv( n+2  ) = Met_Data%SSM( c,r )       ! 'Soil_Erode_Pot  '
                diagv( n+3  ) = wmax ( c,r )              ! 'Mx_Adsrb_H2O_Frc'
@@ -858,7 +857,6 @@ C               n = n + n_dlcat + 1
                diagv( n+6  ) = uland( c,r,4 )            ! 'Forest_Cover    '
                diagv( n+7  ) = tfa  ( c,r )              ! 'Trfac_Above_Can '
                diagv( n+8 )  = tfb  ( c,r )              ! 'Trfac_Inside_Can'
-
                n = n + 8
 
 ! accum and coarse mode number density emissions
