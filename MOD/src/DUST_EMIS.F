@@ -729,8 +729,10 @@ C --------- ###### Start Main Loop ###### ---------
 C Calculate maximum amount of the water absorbed
 C    w` = 0.0014(%clay)**2 + 0.17(%clay) - w` in %
 C     Fecan et al. [1999,Annales Geophys.,17,144-157]
-              !wmax  ( c,r ) = Met_Data%clayf( c,r ) * Met_Data%clayf( c,r )* .0014d0 + 0.17d0 * Met_Data%clayf( c,r )
-              wmax  ( c,r ) = (100.*Met_Data%clayf( c,r )) * (100.*Met_Data%clayf( c,r ))* .0014d0 + 0.17d0 * (100.*Met_Data%clayf( c,r ))
+!              wmax  ( c,r ) = Met_Data%clayf( c,r ) * Met_Data%clayf( c,r )* .0014d0 + 0.17d0 * Met_Data%clayf( c,r )
+              wmax  ( c,r ) = (100.*Met_Data%clayf( c,r )) * 
+     &                        (100.*Met_Data%clayf( c,r )) * 
+     &                        .0014d0 + 0.17d0 * (100.*Met_Data%clayf( c,r ))
               soimt(  c,r ) = dust_volumetric_to_gravimetric( Met_Data%soim1( c,r ), Met_Data%clayf( c,r ), Met_Data%sandf( c,r )) 
 C---Soil moisture effect on U*t
                   if ( soimt( c,r ) .le. 0.01 * wmax( c,r ) ) then   ! wmax in [%]
@@ -991,6 +993,9 @@ C     &                                      Met_Data%dens1( c,r ) )
             utem    = 0.0
             utstar  = 0.0
             hflux   = 0.0
+            print*, 'fmoit = ', fmoit
+            print*, 'uthr = ', uthr
+            print*, 'uthr/drag = ', uthr/drag
             utstar = fmoit * uthr / drag 
             if ( ustar .gt. utstar ) then  ! wind erosion occurs only if U* > U*t
                   utem = ustar ** 3 * ( 1.0 - (utstar / ustar) ** 2)
@@ -998,7 +1003,8 @@ C---Horiz. Flux from Owen (1964)
 !                 utem = ustr * ( ustr * ustr - utstar * utstar )
                   hflux = hflux + fac * ssm * utem !  [g/m/s]
             end if
-            
+            print*, 'ustar = ', ustar
+            print*, 'hflux = ', hflux
          end function dust_hflux
 C==============================================================================
         function dust_volumetric_to_gravimetric(vsoilm,clay,sand)
