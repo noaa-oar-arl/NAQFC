@@ -716,7 +716,9 @@ C --------- ###### Start Main Loop ###### ---------
                if ( ( Grid_Data%lwmask( c,r ) .gt. 0.0 ) .and.
      &           ( Met_Data%rn( c,r ) + Met_Data%rc( c,r ) .le. 0.0254 ) .and. ! rn, rc = [cm]
      &           ( Met_Data%snocov( c,r ) .lt. 0.001 ) .and. ! less than 0.1% snow coverage
-     &           ( Met_Data%ssm( c,r ) .gt. 0.0 ) ) then ! ssm > 0.0
+     &           ( Met_Data%ssm( c,r ) .gt. 0.0 ) .and.
+     &           ( Met_Data%clayf(c,r) .gt. 0.0 ) .and.
+     &           ( Met_Data%drag(c,r) .gt. 0.0) ) then ! ssm > 0.0
                   !---Dust possiblity 1,2,3,5
                   
                   
@@ -727,10 +729,11 @@ C --------- ###### Start Main Loop ###### ---------
 C Calculate maximum amount of the water absorbed
 C    w` = 0.0014(%clay)**2 + 0.17(%clay) - w` in %
 C     Fecan et al. [1999,Annales Geophys.,17,144-157]
-              wmax  ( c,r ) = clayf( c,r ) * clayf( c,r )* .0014d0 + 0.17d0 * clayf( c,r )
-              soilm1( c,r ) = 0.489 - 0.00126 * sandf(c,r) ! volumetric soil moisture saturation limit
-              soimt(  c,r ) = dust_volumetric_to_gravimetric( Met_Data%soim1( c,r ), clayf( c,r ), sandf( c,r )) 
-              if ( Met_Data%soim1( c,r ) .le. soilm1( c,r ) ) then 
+!              wmax  ( c,r ) = Met_Data%clayf( c,r ) * Met_Data%clayf( c,r )* .0014d0 + 0.17d0 * Met_Data%clayf( c,r )
+              wmax  ( c,r ) = (100.*Met_Data%clayf( c,r )) * 
+     &                        (100.*Met_Data%clayf( c,r )) * 
+     &                        .0014d0 + 0.17d0 * (100.*Met_Data%clayf( c,r ))
+              soimt(  c,r ) = dust_volumetric_to_gravimetric( Met_Data%soim1( c,r ), Met_Data%clayf( c,r ), Met_Data%sandf( c,r )) 
 C---Soil moisture effect on U*t
                   if ( soimt( c,r ) .le. 0.01 * wmax( c,r ) ) then   ! wmax in [%]
                      fmoit( c,r ) = 1.0
@@ -739,8 +742,15 @@ C---Soil moisture effect on U*t
      &                            * ( 100.0 * soimt( c,r ) - wmax( c,r ) ) ** 0.68 )
                   end if
  
-                  
-                  kvh( c,r ) = 10. ** (0.134 * clayf( c,r ) - 6.0) 
+C Calculate Vertical to Horizontal Mass Flux Ratio
+C -- This is based on MB95 
+C             kvh = 10 ** ( 0.134 * (%clay) - 6) 
+                  if ( Met_Data%clayf(c,r) < 0.2) then
+                        kvh(c,r) = 4.0e-4
+                  else
+                        kvh( c,r ) = 10. ** (0.134 * (Met_Data%clayf( c,r )*100.) - 6.0) 
+                  endif 
+C Horizontal Flux
                   hflux = dust_hflux( Met_Data%ustar( c,r),
      &                                fmoit( c,r ),
      &                                Met_Data%drag( c,r ),
@@ -749,7 +759,10 @@ C---Soil moisture effect on U*t
      &                                Met_Data%dens1( c,r ) )
                         vflux = hflux * kvh( c,r )                    ! [g/m**2/s]
                         qam( c,r ) = qam( c,r ) + vflux * rlay1hgt * 0.01    ! [g/m**3/s]
-
+                  if (qam(c,r) < 0) then
+                        write(*,*) 'Clay SSM drag ut fmoit c r'
+                        write(*,*) Met_Data%clayf(c,r),Met_Data%ssm(c,r),Met_Data%drag(c,r), Met_Data%uthr(c,r), fmoit(c,r), c,r
+                  end if
                      dust_em( c,r ) = dust_em( c,r ) + qam( c,r )
 
  
@@ -758,7 +771,6 @@ C Adjust dust emissions for transport factors
 
                   dust_em( c,r ) = dust_em( c,r ) * tfa( c,r ) * tfb( c,r )
 
-               end if   ! if soil moisture
             end if  ! if rain & land & snow
 
          end do   ! c
@@ -844,7 +856,6 @@ C               do m = 1, n_dlcat+1
 C                  diagv( m+n ) = fruf( c,r )
 C               end do
 C               n = n + n_dlcat + 1
-
                diagv( n+1  ) = fmoit( c,r )              ! 'Soil_Moist_Fac  '
                diagv( n+2  ) = Met_Data%SSM( c,r )       ! 'Soil_Erode_Pot  '
                diagv( n+3  ) = wmax ( c,r )              ! 'Mx_Adsrb_H2O_Frc'
@@ -853,7 +864,6 @@ C               n = n + n_dlcat + 1
                diagv( n+6  ) = uland( c,r,4 )            ! 'Forest_Cover    '
                diagv( n+7  ) = tfa  ( c,r )              ! 'Trfac_Above_Can '
                diagv( n+8 )  = tfb  ( c,r )              ! 'Trfac_Inside_Can'
-
                n = n + 8
 
 ! accum and coarse mode number density emissions
@@ -990,6 +1000,9 @@ C     &                                      Met_Data%dens1( c,r ) )
             utem    = 0.0
             utstar  = 0.0
             hflux   = 0.0
+            print*, 'fmoit = ', fmoit
+            print*, 'uthr = ', uthr
+            print*, 'uthr/drag = ', uthr/drag
             utstar = fmoit * uthr / drag 
             if ( ustar .gt. utstar ) then  ! wind erosion occurs only if U* > U*t
                   utem = ustar ** 3 * ( 1.0 - (utstar / ustar) ** 2)
@@ -997,7 +1010,8 @@ C---Horiz. Flux from Owen (1964)
 !                 utem = ustr * ( ustr * ustr - utstar * utstar )
                   hflux = hflux + fac * ssm * utem !  [g/m/s]
             end if
-            
+            print*, 'ustar = ', ustar
+            print*, 'hflux = ', hflux
          end function dust_hflux
 C==============================================================================
         function dust_volumetric_to_gravimetric(vsoilm,clay,sand)

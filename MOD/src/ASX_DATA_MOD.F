@@ -129,6 +129,12 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)
 !         Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
          Real,    Allocatable :: COSZEN   ( :,: )  ! Cosine of the zenith angle
+!> Inline Fengsha Windblown Dust
+         Real,    Allocatable :: CLAYF    ( :,: )  ! Fractional Clay content - Fengsha
+         Real,    Allocatable :: SANDF    ( :,: )  ! Fractional Sand content - Fengsha
+         Real,    Allocatable :: DRAG     ( :,: )  ! Drag Partition - Fengsha
+         Real,    Allocatable :: SSM      ( :,: )  ! Erosion Potential - Fengsha
+         Real,    Allocatable :: UTHR     ( :,: )  ! Threshold Velocity for Fengsha
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
@@ -147,11 +153,6 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: RJACM    ( :,:,: )  ! reciprocal mid-layer Jacobian
          Real,    Allocatable :: RJACF    ( :,:,: )  ! reciprocal full-layer Jacobian
          Real,    Allocatable :: RRHOJ    ( :,:,: )  ! reciprocal density X Jacobian
-         Real,    Allocatable :: CLAYF    ( :,: )  ! Fractional Clay content - Fengsha
-         Real,    Allocatable :: SANDF    ( :,: )  ! Fractional Sand content - Fengsha
-         Real,    Allocatable :: DRAG     ( :,: )  ! Drag Partition - Fengsha
-         Real,    Allocatable :: SSM      ( :,: )  ! Erosion Potential - Fengsha
-         Real,    Allocatable :: UTHR     ( :,: )  ! Threshold Velocity for Fengsha
       End Type MET_Type
       
       Type :: GRID_Type
