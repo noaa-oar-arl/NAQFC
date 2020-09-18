@@ -1,4 +1,4 @@
-# NAQFC
+# NAQFC-Aero6
 National Air Quality Forecast Capability
 (https://www.weather.gov/sti/stimodeling_airquality_predictions)
 
