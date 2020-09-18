@@ -108,8 +108,7 @@ C Get default file header attibutes from CONC file (assumes file already open)
 C Set tstep negative to create "circular buffer" type file
 
 !              TSTEP3D = -TSTEP
-               TSTEP3D = TSTEP
-	       SDATE3D = JDATE
+               SDATE3D = JDATE
                STIME3D = JTIME
 
 C Get CGRID nvars

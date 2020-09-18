@@ -121,9 +121,6 @@ C                       run output step; get saturation from LSM module; put PX_
 C                       as first conditional clause
 C    01 Feb 19 D.Wong: Implemented centralized I/O approach
 C    30 June 19 J. Pleim: Corrected Soil Types to 16 and simplified code 
-C    May 4, 2020: NOAA/ARL - Add SODATE and SOTIME to allow SOILOUT output in the middle of run
-C			 Environmental variables SOILOUT_EDATE and SOILOUT_ETIME need to be set
-C 			 EDATE & ETIME are default SODATE and SOTIME if they are not set 
 C-----------------------------------------------------------------------
 C Modified from:
 
@@ -195,8 +192,6 @@ C Local Variables:
       INTEGER, SAVE :: ETIME     ! end scenario time
       INTEGER, SAVE :: NDATE     ! test date to update rainfall
       INTEGER, SAVE :: NTIME     ! test time to update rainfall
-      
-      INTEGER, SAVE :: SODATE, SOTIME !SOILOUT DATE/TIME 
         
       LOGICAL, SAVE :: INITIAL_DAY = .FALSE.  ! true: 1st 24 hours; no previous data
                                               ! false: previous 24 hours of rainfall
@@ -223,7 +218,6 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL, SAVE :: FIRSTHR  = .TRUE.
       LOGICAL, SAVE :: FIRST_WRITE = .TRUE.
-      LOGICAL, SAVE :: SOIL_COMPLETE= .FALSE.
       CHARACTER( 256 ) :: MESG            ! message buffer
       CHARACTER( 16 )  :: PNAME = 'HRNO'  ! procedure name
 
@@ -248,17 +242,8 @@ C-----------------------------------------------------------------------
 
 C Determine last timestamp
          EDATE = STDATE; ETIME = STTIME
-c         CALL NEXTIME( EDATE, ETIME, RUNLEN )   ! end date & time
-         CALL NEXTIME( EDATE, ETIME, 060000 )
+         CALL NEXTIME( EDATE, ETIME, RUNLEN )   ! end date & time
          MSTEPS = TIME2SEC( RUNLEN ) / TIME2SEC( TSTEP( 1 ) )
-  ! get customized SOILOUT ending time
-         SODATE = ENVINT( 'SOILOUT_EDATE', 'SOILOUT END DATE (YYYYJJJ)',0, IOS )
-	 SOTIME = ENVINT( 'SOILOUT_ETIME', 'SOILOUT END TIME (HHMMSS)', 0, IOS ) 
-  ! Output SOILOUT at the end if SOILOUT_EDATE/SOILOUT_ETIME not set 
-         if((SODATE.eq.0) .and. (SOTIME.eq.0)) then
-           SODATE=EDATE 
-           SOTIME=ETIME 
-         endif 
 
 C Open met file
          MNAME = PROMPTMFILE(
@@ -311,8 +296,6 @@ C If initial run, initialize some variables, otherwise get them from file
          EFAC = EXP( -0.103 * 30.0 )
 
       END IF   ! FIRSTIME
-      
-      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .LE. TIME2SEC( TSTEP( 2 ) ) ) GO TO 9999
 
 C Non-convective (RN) and convective (RC) rain is the total amount for the met
 C preprocessor's (typically MCIP) output timestep (typically one hour). It doesn't
@@ -547,17 +530,12 @@ C Calculate NO emissions by going thru temperature cases
 
       END IF  ! growing season check
 
-
-      IF ( SECSDIFF( JDATE,JTIME, SODATE,SOTIME ) .LE. TIME2SEC( TSTEP( 2 ) ) ) GO TO 9999
-      
-      RETURN
-
-9999  IF(SOIL_COMPLETE) return
+      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) ) RETURN
 
 C Create rain data file for soil NO
 
 C Final timestamp
-      NDATE = SODATE; NTIME = SOTIME
+      NDATE = EDATE; NTIME = ETIME
 
 C Build description for, and create/open soil NO emissions output file
       FTYPE3D = GRDDED3
@@ -683,7 +661,7 @@ C Write soil NO rain data file
       WRITE( LOGDEV,94040 )
      &      'Timestep written to', SOILOUT,
      &      'for date and time', NDATE, NTIME
-      SOIL_COMPLETE=.true.
+
       RETURN
 
 94010 FORMAT( A, F10.2, 1X, A, I3, ',', I3 )

@@ -699,8 +699,8 @@ C Read Emissions for all sources on File N
          DO ISPC = 1, N_EMIS_ISTR
             VNAME = EM_SURR_PT( ISPC )
             IF ( VNAME .EQ. '' ) CYCLE
-c            call interpolate_var (STKENAME(N), VNAME, EM_FILE_DATE( ISRM ), JTIME, STKEMIS(N)%ARRY)
-             call interpolate_var (STKENAME(N), VNAME, JDATE, JTIME, STKEMIS(N)%ARRY)
+            call interpolate_var (STKENAME(N), VNAME, EM_FILE_DATE( ISRM ), JTIME, STKEMIS(N)%ARRY)
+
 C Apportion emissions to the layers
             DO S = 1, MY_NSRC( N )
                SRC = SOURCE( N )%ARRY( S )
@@ -926,8 +926,8 @@ C Includes:
       ! Dedicated Variable, BFLUX
       LACRESBURNED = 0
       IF ( FIREFLAG( N ) ) THEN
-c         call interpolate_var (STKENAME(N), 'HFLUX', LOC_STKDATE, JTIME, FIREVAR(N)%ARRY)
-         call interpolate_var (STKENAME(N), 'HFLUX', JDATE, JTIME, FIREVAR(N)%ARRY)
+         call interpolate_var (STKENAME(N), 'HFLUX', LOC_STKDATE, JTIME, FIREVAR(N)%ARRY)
+
          DO S = 1, MY_NSRC( N )
             SRC = SOURCE( N )%ARRY( S )
             BFLUX( N )%ARRY( S ) = FIREVAR( N )%ARRY( SRC ) * BTU2M4PS3
