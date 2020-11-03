@@ -641,7 +641,6 @@ C Parameters:
          real       :: hflux, vflux ! horizontal and vertical dust flux
          real       :: jday
          integer    :: emap( n_dlcat+1 )
-         real       :: area_of_cell
          interface
             subroutine tfabove ( tfa )
                real,    intent( out ) :: tfa( :,: )
@@ -758,8 +757,7 @@ C Horizontal Flux
      &                                Met_Data%ssm( c,r ),
      &                                Met_Data%dens1( c,r ) )
                         vflux = hflux * kvh( c,r )                    ! [g/m**2/s]
-                        area_of_cell=xcell_gd*ycell_gd                ! from grid_conf
-                        qam( c,r ) = qam( c,r ) + vflux * area_of_cell * rlay1hgt * 0.01    ! [g/m**3/s]
+                        qam( c,r ) = qam( c,r ) + vflux * rlay1hgt * 0.01    ! [g/m**3/s]
                   if (qam(c,r) < 0) then
                         write(*,*) 'Clay SSM drag ut fmoit c r'
                         write(*,*) Met_Data%clayf(c,r),Met_Data%ssm(c,r),Met_Data%drag(c,r), Met_Data%uthr(c,r), fmoit(c,r), c,r
