@@ -249,9 +249,9 @@ export CLD_DIAG=N            #> write cloud diagnostic file [ default: N ]
 export CTM_AERDIAG=Y #N         #> aerosol diagnostic file [ default: N ]
 export CTM_PHOTDIAG=N        #> photolysis diagnostic file [ default: N ]
 export CTM_SSEMDIAG=N        #> sea-salt emissions diagnostic file [ default: N ]
-export CTM_WB_DUST=N #Y         #> use inline windblown dust emissions [ default: Y ]
-export CTM_ERODE_AGLAND=N    #> use agricultural activity for windblown dust [ default: N ]; ignore if CTM_WB_DUST = N
-export CTM_DUSTEM_DIAG=N     #> windblown dust emissions diagnostic file [ default: N ]; ignore if CTM_WB_DUST = N
+export CTM_WB_DUST=Y #Y         #> use inline windblown dust emissions [ default: Y ] 
+export CTM_ERODE_AGLAND=N    #> use agricultural activity for windblown dust [ default: N ]; ignore if CTM_WB_DUST = N (not used for updated inline Fengsha NAQFC)
+export CTM_DUSTEM_DIAG=Y     #> windblown dust emissions diagnostic file [ default: N ]; ignore if CTM_WB_DUST = N
 export CTM_LTNG_NO=N #Y         #> turn on lightning NOx [ default: N ]
 export CTM_WVEL=Y            #> save derived vertical velocity component to conc file [ default: N ]
 export KZMIN=Y               #> use Min Kz option in edyintb [ default: Y ], otherwise revert to Kz0UT
@@ -282,7 +282,8 @@ export CTM_ADV_CFL=0.95      #> max CFL [ default: 0.75]
 
 #Science Options
 export CTM_OCEAN_CHEM=Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
-export CTM_WBDUST_BELD=BELD3 #> landuse database for identifying dust source regions
+export CTM_WBDUST_BELD=NOBELD #> landuse database for identifying dust source regions (not used for updated inline Fengsha NAQFC)
+                              #> Note--> Leave as NOBELD to force isbeld=false in centralized io to avoid stoppage.
 export CTM_FST=N             #> mosaic method to get land-use specific stomatal flux
 export CTM_BIDI_FERT_NH3=T   #> subtract fertilizer NH3 from emissions because it will be handled
 export CTM_GRAV_SETL=Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
@@ -321,6 +322,7 @@ export CTM_APMDIAG=Y         #> Hourly-Average Aerosol Diagnostic File [ default
 export APMDIAG_BLEV_ELEV="1 1"  #> layer range for average pmdiag = NLAYS
 export VDIFF_DIAG_FILE=N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
 export LTNGDIAG=N            #> lightning diagnostic file [ default: N ]
+export PLMRISE_OPT=2         #> Wildfire Plumerise Scheme: 1-Briggs69; 2-Sofiev12; NAQFC Option for wildfire plume rise
 #------------------------------------------------------------------------------------------------------------
 
 DISP=delete
