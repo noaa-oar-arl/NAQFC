@@ -355,7 +355,8 @@ C If new date, read season switch
             MESG = 'Reading gridded season switch data...'
             CALL M3MSG2( MESG ) 
              
-            call interpolate_var ('SEASON', jdate, 0, SWITCH)
+!            call interpolate_var ('SEASON', jdate, 0, SWITCH)
+            call interpolate_var ('SEASON', jdate, jtime, SWITCH) !NAQFC time-dep bioseason 
 
             MESG = 'Applying gridded season switch data...' 
             CALL M3MSG2( MESG )
