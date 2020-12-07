@@ -346,7 +346,7 @@ C Loop thru the number of time steps (hourly)
       EMISX = 0.0   ! array
 #endif
 
-      IF ( JDATE .NE. LDATE ) THEN
+!      IF ( JDATE .NE. LDATE ) THEN !Comment out:  NAQFC time-dep bioseason
 
          CALL WRDAYMSG( JDATE, MESG )               
 
@@ -375,7 +375,7 @@ C If new date, read season switch
  
          END IF   ! if using switch file
 
-      END IF   ! if new day
+!      END IF   ! if new day (NAQFC comment out)
 
       WRITE( MESG,94030 ) HHMMSS( JTIME )
       CALL M3MSG2( MESG )
