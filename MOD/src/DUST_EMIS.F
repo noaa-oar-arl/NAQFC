@@ -631,6 +631,7 @@ C Parameters:
          real, allocatable, save :: qam   ( :,: ) ! emis for landuse type [g/m**2/s]
 
          real       :: edust( 2 )       ! mass emis rate [g/s] per mode (only accum & coarse)
+         real       :: sumdfr           ! sum var for desert fraction !Fengsha doesnt use, but check for diagnostic
          real       :: rlay1hgt ! reciprocal of layer-1 height [1/m]
          real       :: m3j              ! 3rd moment accumulation (J) mode emis rates [m3/m3/s]
          real       :: m3k              ! 3rd moment coarse mode (K) emis rates [m3/m3/s]
@@ -834,28 +835,31 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
                n = n_dlcat + 2
                diagv( n ) = dust_em( c,r )              ! g/m**3/s
 
-C               sumdfr = 0.0
-C               do m = 1, n_dlcat+1
-C                  diagv( m+n ) = elus( c,r )
+               sumdfr = 0.0
+               do m = 1, n_dlcat+1
+C                  diagv( m+n ) = elus( c,r ) 
+                   diagv( m+n ) = 0.0   !Fensghsa doesn't use.
 C                  sumdfr = sumdfr + elus( c,r )
-C               end do
-C               n = n + n_dlcat + 2
+                   sumdfr = 0.0 !Fensghsa doesn't use.
+               end do
+               n = n + n_dlcat + 2
 C               diagv( n ) = sumdfr
-
-C               do m = 1, n_dlcat+1
-C                  diagv( m+n ) = Met_Data%USTAR( c,r )
-C               end do
-C               n = n + n_dlcat + 1
+                diagv( n ) = 0.0  !Fensghsa doesn't use.
+               do m = 1, n_dlcat+1
+                  diagv( m+n ) = Met_Data%USTAR( c,r )
+               end do
+               n = n + n_dlcat + 1
 
                do m = 1, n_dlcat+1
                   diagv( m+n ) = kvh( c,r )
                end do
                n = n + n_dlcat + 1
 
-C               do m = 1, n_dlcat+1
+               do m = 1, n_dlcat+1
 C                  diagv( m+n ) = fruf( c,r )
-C               end do
-C               n = n + n_dlcat + 1
+                   diagv( m+n ) = 0.0  !Fensghsa doesn't use.
+               end do
+               n = n + n_dlcat + 1
                diagv( n+1  ) = fmoit( c,r )              ! 'Soil_Moist_Fac  '
                diagv( n+2  ) = Met_Data%SSM( c,r )       ! 'Soil_Erode_Pot  '
                diagv( n+3  ) = wmax ( c,r )              ! 'Mx_Adsrb_H2O_Frc'
