@@ -746,9 +746,9 @@ C Calculate Vertical to Horizontal Mass Flux Ratio
 C -- This is based on MB95 
 C             kvh = 10 ** ( 0.134 * (%clay) - 6) 
                   if ( Met_Data%clayf(c,r) < 0.2) then
-                        kvh(c,r) = 4.0e-4
+                        kvh( c,r ) = 10. ** (0.134 * (Met_Data%clayf( c,r )*100.) - 6.0)
                   else
-                        kvh( c,r ) = 10. ** (0.134 * (Met_Data%clayf( c,r )*100.) - 6.0) 
+                        kvh(c,r) = 4.0e-4
                   endif 
 C Horizontal Flux
                   hflux = dust_hflux( Met_Data%ustar( c,r),
