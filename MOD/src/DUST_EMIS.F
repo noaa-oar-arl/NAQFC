@@ -837,14 +837,14 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
 
                sumdfr = 0.0
                do m = 1, n_dlcat+1
-C                  diagv( m+n ) = elus( c,r ) 
-                   diagv( m+n ) = 0.0   !Fensghsa doesn't use.
-C                  sumdfr = sumdfr + elus( c,r )
-                   sumdfr = 0.0 !Fensghsa doesn't use.
+C                  diagv( m+n ) = elus( c,r ) !Fensghsa doesn't use.
+                   diagv( m+n ) = 0.0
+C                  sumdfr = sumdfr + elus( c,r ) !Fensghsa doesn't use.
+                   sumdfr = 0.0
                end do
                n = n + n_dlcat + 2
-C               diagv( n ) = sumdfr
-                diagv( n ) = 0.0  !Fensghsa doesn't use.
+C               diagv( n ) = sumdfr   !Fensghsa doesn't use.
+                diagv( n ) = 0.0 
                do m = 1, n_dlcat+1
                   diagv( m+n ) = Met_Data%USTAR( c,r )
                end do
@@ -856,8 +856,8 @@ C               diagv( n ) = sumdfr
                n = n + n_dlcat + 1
 
                do m = 1, n_dlcat+1
-C                  diagv( m+n ) = fruf( c,r )
-                   diagv( m+n ) = 0.0  !Fensghsa doesn't use.
+C                  diagv( m+n ) = fruf( c,r ) !Fensghsa doesn't use.
+                   diagv( m+n ) = (Met_Data%uthr(c,r)*fmoit(c,r))/Met_Data%drag(c,r)
                end do
                n = n + n_dlcat + 1
                diagv( n+1  ) = fmoit( c,r )              ! 'Soil_Moist_Fac  '
