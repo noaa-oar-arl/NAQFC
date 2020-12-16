@@ -249,7 +249,8 @@ C                     ---------- -------- ------- + +   + ------ --- +  --------
        ! Associated with ae6i                                                           
      & spcs_list_type('AMTNO3  ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.11), ! Monoterpene Nitrate SOA
      & spcs_list_type('AISOPNN ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.32), ! Isoprene Nitrate SOA
-     & spcs_list_type('AMTHYD  ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), ! 
+!     & spcs_list_type('AMTHYD  ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), ! 
+     & spcs_list_type('AMTHYD  ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), !
      & spcs_list_type('AIETET  ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Iso. Tetrol SOA         #50
      & spcs_list_type('AIEOS   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.30), ! Iso. Organosulfate SOA  
      & spcs_list_type('ADIM    ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), !

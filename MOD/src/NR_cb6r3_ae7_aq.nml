@@ -14,4 +14,5 @@ NR_SPECIES_DATA =
 'SVMT4'  ,184.0  ,''   ,-1      ,''   ,-1     ,'VD_SVMT4'     , 1   ,'SVMT4'         , 1  ,'SVMT4'      ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'SVMT5'  ,170.0  ,''   ,-1      ,''   ,-1     ,'VD_SVMT5'     , 1   ,'SVMT5'         , 1  ,'SVMT5'      ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'SVMT6'  ,168.0  ,''   ,-1      ,''   ,-1     ,'VD_SVMT6'     , 1   ,'SVMT6'         , 1  ,'SVMT6'      ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'MTHYD'  ,168.0  ,''   ,-1      ,''   ,-1     ,'VD_MTNO3'     , 1   ,'MTNO3'         , 1  ,'MTHYD'      ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 /
