@@ -454,8 +454,8 @@ REACTIONS[CM] =
 <BP71mtp> MTNO3 = # 1.0/<IC3ONO2>;
 
 ! MTNO3 aerosol hydrolysis
-<HYD_MT>   AMTNO3J  = 1.00*AMTHYDJ #9.259E-5;
-
+!<HYD_MT>   AMTNO3J  = 1.00*AMTHYDJ #9.259E-5;
+<HYD_MT>   AMTNO3J  = 1.00*AMTHYDJ #9.259E-7;
 ! oligomerization reaction for secondary organic aerosols
 <OLIG_AROMATIC1>  AAVB2J = 0.907*AOLGAJ # 9.48816E-6;
 <OLIG_AROMATIC2>  AAVB3J = 0.925*AOLGAJ # 9.48816E-6;

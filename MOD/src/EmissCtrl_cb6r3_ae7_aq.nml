@@ -135,6 +135,8 @@
    'EVERYWHERE', 'ALL'         ,'ISOP'   ,'ISOP'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'APIN'   ,'APIN'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'TERP'   ,'TERP'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'BIOG'        ,'APIN'   ,'APIN'        ,'GAS'  ,0.5 ,'UNIT','m',
+   'EVERYWHERE', 'BIOG'        ,'TERP'   ,'TERP'        ,'GAS'  ,0.5 ,'UNIT','m',
    'EVERYWHERE', 'ALL'         ,'BENZ'   ,'BENZENE'     ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'XYLMN'  ,'XYLMN'       ,'GAS'  ,1.  ,'UNIT','a', 

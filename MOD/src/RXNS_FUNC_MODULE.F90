@@ -943,7 +943,8 @@
 !  Reaction Label BP70mtp         
              RKI( NCELL,  288) =   7.2000D-12 * CFACT 
 !  Reaction Label HYD_MT          
-             RKI( NCELL,  290) =   9.2590D-05 * SFACT 
+!             RKI( NCELL,  290) =   9.2590D-05 * SFACT 
+             RKI( NCELL,  290) =   9.2590D-07 * SFACT
 !  Reaction Label OLIG_AROMATIC1  
              RKI( NCELL,  291) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_AROMATIC2  
