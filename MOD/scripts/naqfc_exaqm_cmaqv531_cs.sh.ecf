@@ -247,7 +247,8 @@ export CTM_MINSYNC=60       #> min sync time step (sec) [default: 60]
 export CTM_CKSUM=Y           #> write cksum report [ default: Y ]
 export CLD_DIAG=N            #> write cloud diagnostic file [ default: N ]
 export CTM_AERDIAG=Y #N         #> aerosol diagnostic file [ default: N ]
-export CTM_PHOTDIAG=N        #> photolysis diagnostic file [ default: N ]
+export CTM_CANOPY_SHADE=Y        #> canopy shade effects on photolysis [ default: N ]
+export CTM_PHOTDIAG=Y        #> photolysis diagnostic file [ default: N ]
 export CTM_SSEMDIAG=N        #> sea-salt emissions diagnostic file [ default: N ]
 export CTM_WB_DUST=Y #Y         #> use inline windblown dust emissions [ default: Y ] 
 export CTM_ERODE_AGLAND=N    #> use agricultural activity for windblown dust [ default: N ]; ignore if CTM_WB_DUST = N (not used for updated inline Fengsha NAQFC)
@@ -748,6 +749,7 @@ export CTM_DUST_EMIS_1=$DATA/DUST_EMIS.${CTM_APPL}
 #CMAQv5.3
 export  CTM_PMDIAG_1=$DATA/PMDIAG.${CTM_APPL}     #> On-Hour Particle Diagnostics
 export CTM_APMDIAG_1=$DATA/APMDIAG.${CTM_APPL}     #> Hourly Avg. Particle Diagnostics
+export CTM_RJ_1=$DATA/RJ.${CTM_APPL}     #> Photolysis Diagnostics
 
 flist1="$CTM_CONC_1 $S_CGRID $A_CONC_1 $CTM_DRY_DEP_1 $CTM_DEPV_DIAG $CTM_PT3D_DIAG"
 flist2="$B3GTS_S $SOILOUT $CTM_DUST_EMIS_1 $CTM_WET_DEP_1 $CTM_WET_DEP_2 $CTM_PMDIAG_1 $CTM_APMDIAG_1 $CTM_RJ_1"
@@ -807,7 +809,7 @@ then
  mv $DATA/B3GTS_S.${CTM_APPL}  $COMOUT/aqm.${cycle}.b3gt2.ncf
  mv $DATA/SOILOUT.${CTM_APPL}  $COMOUT/aqm.${cycle}.soil24.ncf
  mv $DATA/DUST_EMIS.${CTM_APPL}  $COMOUT/aqm.${cycle}.dustemis.ncf
-
+ mv $DATA/RJ.${CTM_APPL}  $COMOUT/aqm.${cycle}.rj.ncf
 fi
 if [ "$SENDCOM" = 'YES' ] && [ "${FCST}" = "NO" ] && [ -s $DATA/SOILOUT.${CTM_APPL} ]
 then
@@ -824,6 +826,7 @@ then
  mv $DATA/B3GTS_S.${CTM_APPL}  $COMOUTm1/aqm.${cycle}.b3gt2_r.ncf
  mv $DATA/SOILOUT.${CTM_APPL}  $COMOUTm1/aqm.${cycle}.soil24_r.ncf
  mv $DATA/DUST_EMIS.${CTM_APPL}  $COMOUT/aqm.${cycle}.dustemis.ncf
+ mv $DATA/RJ.${CTM_APPL}  $COMOUT/aqm.${cycle}.rj.ncf
 fi
 
 if [ $err -ne 0 ]

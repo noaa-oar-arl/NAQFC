@@ -125,6 +125,9 @@ C...modules
       USE SEAS_STRAT_O3_MIN    ! monthly minimum fraction of ozone column density above Pressure TOP
       USE CENTRALIZED_IO_MODULE, ONLY : LAT, LON, HT
 
+      USE RUNTIME_VARS, ONLY : CANOPY_SHADE     !Used for turning on Canopy Shade to reduce Photolysis
+      USE ASX_DATA_MOD, ONLY : MET_DATA         !Used for Canopy Shade variables
+
 #ifdef parallel
       USE SE_MODULES           ! stenex (using SE_UTIL_MODULE)
 #else
