@@ -135,6 +135,11 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: DRAG     ( :,: )  ! Drag Partition - Fengsha
          Real,    Allocatable :: SSM      ( :,: )  ! Erosion Potential - Fengsha
          Real,    Allocatable :: UTHR     ( :,: )  ! Threshold Velocity for Fengsha
+!> Inline Canopy Processes
+         Real,    Allocatable :: FCH      ( :,: )  ! Forest Canopy Height (m)
+         Real,    Allocatable :: FRT      ( :,: )  ! Forest Fraction
+         Real,    Allocatable :: CLU      ( :,: )  ! Clumping Index
+         Real,    Allocatable :: POPU     ( :,: )  ! Population Density (people/10km2)
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
@@ -597,6 +602,19 @@ C-----------------------------------------------------------------------
             End If
          End If
 
+         If ( CANOPY_SHADE  ) Then
+            ALLOCATE( Met_Data%FCH    ( NCOLS,NROWS ),
+     &                Met_Data%FRT    ( NCOLS,NROWS ),
+     &                Met_Data%CLU    ( NCOLS,NROWS ),
+     &                Met_Data%POPU   ( NCOLS,NROWS ),
+     &                STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating Canopy Shade variables'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+         End If
+
+
 !> ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
 
          IF (RCA_AVAIL) THEN
@@ -792,6 +810,16 @@ C Soil vars
             call interpolate_var ('SANDF', jdate, jtime, Met_Data%SANDF)
 
             call interpolate_var ('CLAYF', jdate, jtime, Met_Data%CLAYF)
+         End If
+C Canopy vars
+         If ( CANOPY_SHADE ) Then
+            call interpolate_var ('FCH', jdate, jtime, Met_Data%FCH)
+
+            call interpolate_var ('FRT', jdate, jtime, Met_Data%FRT)
+
+            call interpolate_var ('CLU', jdate, jtime, Met_Data%CLU)
+
+            call interpolate_var ('POPU', jdate, jtime, Met_Data%POPU)
          End If
 C met vars
 
