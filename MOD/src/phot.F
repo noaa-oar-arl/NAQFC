@@ -1131,15 +1131,35 @@ C...modules
 !Makar, P., Staebler, R., Akingunola, A. et al. The effects of forest canopy shading and turbulence on boundary layer ozone.
 !Nat Commun 8, 15243 (2017). https://doi.org/10.1038/ncomms15243
 
-                     IF ( CANOPY_SHADE ) THEN ! possibly compute canopy shade reduction
-                            !Need to add conditions for continous canopy, otherwise RJ_CORR=1
-                            !RJ_CORR effectly represents the beam attenuation.
+                     IF ( CANOPY_SHADE ) THEN ! compute canopy shade reduction 
+                            !RJ_CORR effectly represents the beam attenuation and reduces photolysis.
                             !Nilson, T. A theoretical analysis of the frequency of gaps in plant stands. Agric. Meterol. 8, 25–38 (1971).
                             RJ_CORR( COL,ROW ) = MAX(1.0E-10, EXP(-1.0*(0.5*Met_Data%LAI( COL,ROW )
      &                                         *Met_Data%CLU( COL,ROW ))/MAX(0.05, COSZEN)))
-                            !linear average of photolysis rates for bottom of-canopy and top of model layer 1
+                            !take linear average of photolysis rates for bottom of-canopy and top of model layer 1
                             RJ( COL,ROW, 1, : ) = ( RJ( COL,ROW, 1, : ) 
      &                                            + RJ( COL,ROW, 1, : )*RJ_CORR( COL,ROW ) )/2.0
+                            !conditions for grid cells that do NOT have a continuous forest canopy
+                            IF (Met_Data%LAI( COL,ROW ) .LT. 0.1 ) THEN !LAI is relatively small
+                             RJ( COL,ROW, 1, : ) = RJ( COL,ROW, 1, : )
+                            END IF
+                            
+                            IF (Met_Data%FCH( COL,ROW ) .LT. 0.5 ) THEN !Canopy is low (< 0.5 m)
+                             RJ( COL,ROW, 1, : ) = RJ( COL,ROW, 1, : )
+                            END IF
+
+                            IF (MAX(0.0, 1.0 - Met_Data%FRT( COL,ROW )) .GT. 0.5 ) THEN !Low forest fraction-->contiguous forest is unlikely
+                             RJ( COL,ROW, 1, : ) = RJ( COL,ROW, 1, : )
+                            END IF
+
+                            IF (Met_Data%POPU( COL,ROW ) .GT. 10000.0 ) THEN !Population high enough to indicate the canopy is inside large city
+                             RJ( COL,ROW, 1, : ) = RJ( COL,ROW, 1, : )
+                            END IF
+                            
+                            IF (EXP(-0.5*Met_Data%LAI( COL,ROW )*Met_Data%CLU( COL,ROW )) .GT. 0.45 
+     &                                               .AND. Met_Data%FCH( COL,ROW ) .LT. 18.0 ) THEN !small/short clumping/forest
+                             RJ( COL,ROW, 1, : ) = RJ( COL,ROW, 1, : )
+                            END IF             
                      END IF
 !--------------------------------------------------------------------------------------------------------------------------
                   END IF
