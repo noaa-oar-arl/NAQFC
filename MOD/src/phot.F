@@ -1124,34 +1124,37 @@ C...modules
                          RJ( COL,ROW, L, IPHOT )     = ACM_CLOUDS( COL,ROW ) *  RJ_SUB( COL,ROW, L, IPHOT )
      &                                               + MSCALE * RJ( COL,ROW,L,IPHOT )
                      END FORALL ! Loop on layers and PHOT
+                  END IF
+               END IF ! not USE_ACM_CLOUD and  ACM_CLOUDS > 0
 
-!------------------------CANOPY CORRECTION/REDUCTION Section NOAA-ARL------------------------------------------------------
+!------------------------CANOPY PHOTOLYSIS CORRECTION/REDUCTION Section NOAA-ARL-------------------------------------------
 !Conditions to reduce weighted average of photolysis rates (RJ) due to canopy shading (if user-defined=true); P. C. Campbell
 !Following is based on work of ECCC in GEM-MACHv2.1:  Makar et al. (2017)
 !Makar, P., Staebler, R., Akingunola, A. et al. The effects of forest canopy shading and turbulence on boundary layer ozone.
 !Nat Commun 8, 15243 (2017). https://doi.org/10.1038/ncomms15243
 
-                     IF ( CANOPY_SHADE ) THEN ! compute canopy shade reduction 
-                            !RJ_CORR effectly represents the beam attenuation and reduces photolysis.
-                            !Nilson, T. A theoretical analysis of the frequency of gaps in plant stands. Agric. Meterol. 8, 25–38 (1971).
-                            RJ_CORR( COL,ROW ) = MAX(1.0E-10, EXP(-1.0*(0.5*Met_Data%LAI( COL,ROW )
-     &                                         *Met_Data%CLU( COL,ROW ))/MAX(0.05, COSZEN)))
+                     IF ( CANOPY_SHADE ) THEN ! compute canopy shade reduction
                             !conditions for grid cells that do NOT have a continuous forest canopy
-                            IF ( Met_Data%LAI( COL,ROW ) .LT. 0.1 
-     &                         .OR. Met_Data%FCH( COL,ROW ) .LT. 0.5 
-     &                         .OR. MAX(0.0, 1.0 - Met_Data%FRT( COL,ROW )) .GT. 0.5 
-     &                         .OR. Met_Data%POPU( COL,ROW ) .GT. 10000.0 
+                            IF ( Met_Data%LAI( COL,ROW ) .LT. 0.1
+     &                         .OR. Met_Data%FCH( COL,ROW ) .LT. 0.5
+     &                         .OR. MAX(0.0, 1.0 - Met_Data%FRT( COL,ROW )) .GT. 0.5
+     &                         .OR. Met_Data%POPU( COL,ROW ) .GT. 10000.0
      &                         .OR. EXP(-0.5*Met_Data%LAI( COL,ROW )*Met_Data%CLU( COL,ROW )) .GT. 0.45
-     &                                               .AND. Met_Data%FCH( COL,ROW ) .LT. 18.0 ) THEN 
+     &                                               .AND. Met_Data%FCH( COL,ROW ) .LT. 18.0 ) THEN
                                 RJ( COL,ROW, 1, : ) = RJ( COL,ROW, 1, : )
                             ELSE ! There is a contiguous forest canopy, apply correctoin
+                            !RJ_CORR effectly represents the beam attenuation and reduces photolysis.
+                            !Nilson, T. A theoretical analysis of the frequency of gaps in plant stands. Agric. Meterol. 8, 25⚌~Z~L~@~S38 (1971).
+                                RJ_CORR( COL,ROW ) = MAX(1.0E-10, EXP(-1.0*(0.5*Met_Data%LAI( COL,ROW )
+     &                                         *Met_Data%CLU( COL,ROW ))/MAX(0.05, COSZEN)))
                                 RJ( COL,ROW, 1, : ) = ( RJ( COL,ROW, 1, : )
-     &                                            + RJ( COL,ROW, 1, : )*RJ_CORR( COL,ROW ) )/2.0
+     &                                            + (RJ( COL,ROW, 1, : )*RJ_CORR( COL,ROW )) )/2.0
                             END IF
                      END IF
 !--------------------------------------------------------------------------------------------------------------------------
-                  END IF
-               END IF ! not USE_ACM_CLOUD and  ACM_CLOUDS > 0
+
+
+
 
                IF ( JTIME_CHK ) THEN ! compute clear sky reflection and transmission coefficients
                   IF ( ANY( CLOUDS ) ) THEN
