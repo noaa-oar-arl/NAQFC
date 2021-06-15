@@ -454,7 +454,14 @@ c..update irrout arrays if needed
 c..compute canopy shade reduction to photolysis
                IF ( CANOPY_SHADE ) THEN 
                 IF (L .EQ. 1) THEN !first model layer
-                      WRITE(*,*) 'RJ_CORR(C,R)=', RJ_CORR(C,R)
+                  IF ( Met_Data%LAIE( C,R ) .GT. 0.1  !conditions for continuous forest canopy
+     &                         .AND. Met_Data%FCH( C,R ) .GT. 0.5
+     &                         .AND. MAX(0.0, 1.0 - Met_Data%FRT( C,R )) .LT. 0.5
+     &                         .AND. Met_Data%POPU( C,R ) .GT. 10000.0) THEN
+
+                   IF (EXP(-0.5*Met_Data%LAIE( C,R )*Met_Data%CLU( C,R )) .LT. 0.45 !additional condition for clumping & short trees
+     &                                               .AND. Met_Data%FCH( C,R ) .GT. 18.0 ) THEN
+
                       CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN*RJ_CORR(C,R), HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
                       FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
@@ -516,6 +523,8 @@ c..Update concentration array
 c..update irrout arrays if needed
                IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
 
+                  END IF ! additional canopy condition
+                 END IF ! continuous canopy conditions
                 END IF !layer 1
                END IF !canopy shade
 
