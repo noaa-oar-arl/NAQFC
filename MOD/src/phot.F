@@ -1133,7 +1133,7 @@ C...modules
 !Makar, P., Staebler, R., Akingunola, A. et al. The effects of forest canopy shading and turbulence on boundary layer ozone.
 !Nat Commun 8, 15243 (2017). https://doi.org/10.1038/ncomms15243
 
-                     IF ( CANOPY_SHADE ) THEN ! compute canopy shade reduction factor (RJ_CORR) for gas solver call (hrdriver.F)
+                     IF ( CANOPY_SHADE ) THEN ! compute canopy shade reduction factor (RJ_CORR)
                             !conditions for grid cells that do NOT have a continuous forest canopy
                             IF ( Met_Data%LAIE( COL,ROW ) .LT. 0.1
      &                         .OR. Met_Data%FCH( COL,ROW ) .LT. 0.5

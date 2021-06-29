@@ -46,6 +46,7 @@ C--------------------------------------------------------------------------
       USE GRID_CONF             ! horizontal domain specifications
       USE ASX_DATA_MOD          ! Includes CONST
       USE UTILIO_DEFN
+      USE RUNTIME_VARS, ONLY : CANOPY_SHADE     !Used for turning on Canopy Shade to reduce vertical diffusivity
 
       IMPLICIT NONE
 
@@ -95,6 +96,8 @@ C Local variables:
       REAL    WT, ZSOL
       REAL    EDYZ
       REAL    ZFL                    ! local ZF
+      REAL    ZCAN, TLCAN, HOL, SIGMACAN, EDDYVEST, EDDYVEST1  ! local canopy parameters
+      INTEGER LAYCAN ! local canopy parameters
 
       CHARACTER( 16 ) :: PNAME = 'EDDYX'
       CHARACTER( 16 ) :: VNAME
@@ -207,6 +210,82 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
          END IF
 
          EDDYV( C,R,L ) = EDDV
+
+         IF ( CANOPY_SHADE ) THEN ! compute canopy effects on vertical diffusivity
+                            !conditions for grid cells that do NOT have a continuous forest canopy
+          IF (L .EQ. 1) THEN !first model layer
+           IF ( Met_Data%LAIE( C,R ) .LT. 0.1
+     &        .OR. Met_Data%FCH( C,R ) .LT. 0.5
+     &        .OR. MAX(0.0, 1.0 - Met_Data%FRT( C,R )) .GT. 0.5
+     &        .OR. Met_Data%POPU( C,R ) .GT. 10000.0
+     &        .OR. EXP(-0.5*Met_Data%LAIE( C,R )*Met_Data%CLU( C,R )) .GT. 0.45
+     &                                               .AND. Met_Data%FCH( C,R ) .LT. 18.0 ) THEN
+              EDDYV( C,R,L ) = EDDYV( C,R,L )
+           ELSE ! There is a contiguous forest canopy, apply correctoin over canopy layers
+                !Raupauch M. R. A Practical Lagrangian method for relating scalar concentrations to 
+                ! source distributions in vegetation canopies. Q. J. R. Meteor. Soc. (1989), 115, pp 609-632
+
+              HOL = Met_Data%FCH( C,R ) * Met_Data%MOLI( C,R )  !hc/L canopy stability parameter
+              ZCAN = ZFL  ! Initialize top canopy (m) --assume constant 0.5 m step down in canopy (below)
+              LAYCAN = 0  ! Initialize number of canopy layers
+              DO WHILE (ZCAN.GE.0.5)  
+                 TLCAN = (Met_Data%FCH( C,R )/Met_Data%USTAR( C,R )) * (
+     &                   (0.256 * (ZCAN-(0.75*Met_Data%FCH( C,R )))/Met_Data%FCH( C,R ) ) +
+     &                   (0.492*EXP((-0.256*ZCAN/Met_Data%FCH( C,R ))/0.492)) )
+
+                 IF ( HOL .LT. -0.1 )  THEN  !UNSTABLE
+                  IF ( ZCAN/Met_Data%FCH( C,R ) .GT. 1.25 ) THEN
+                    SIGMACAN = 1.
+                  END IF
+                  IF ( ZCAN/Met_Data%FCH( C,R ) .GE. 0.175  .AND.  ZCAN/Met_Data%FCH( C,R ) .LE. 1.25 ) THEN
+                    SIGMACAN = 2.
+                  END IF
+                  IF ( ZCAN/Met_Data%FCH( C,R ) .LT. 0.175 )  THEN
+                    SIGMACAN = 3. 
+                  END IF
+                 END IF
+
+                 IF ( HOL .GE. -0.1  .AND. HOL .LT. 0.1 )   THEN  !NEUTRAL
+                  IF ( ZCAN/Met_Data%FCH( C,R ) .GT. 1.25 ) THEN
+                    SIGMACAN = 1.
+                  END IF
+                  IF ( ZCAN/Met_Data%FCH( C,R ) .GE. 0.175  .AND.  ZCAN/Met_Data%FCH( C,R ) .LE. 1.25 ) THEN
+                    SIGMACAN = 2.
+                  END IF
+                  IF ( ZCAN/Met_Data%FCH( C,R ) .LT. 0.175 )  THEN
+                    SIGMACAN = 3.
+                  END IF                  
+                 END IF
+
+                 IF ( HOL .GE.  0.1  .AND.  HOL .LT. 0.9 )   THEN  !STABLE
+                  IF ( ZCAN/Met_Data%FCH( C,R ) .GT. 1.25 ) THEN
+                    SIGMACAN = 1.
+                  END IF
+                  IF ( ZCAN/Met_Data%FCH( C,R ) .GE. 0.175  .AND.  ZCAN/Met_Data%FCH( C,R ) .LE. 1.25 ) THEN
+                    SIGMACAN = 2.
+                  END IF
+                  IF ( ZCAN/Met_Data%FCH( C,R ) .LT. 0.175 )  THEN
+                    SIGMACAN = 3.
+                  END IF
+                 END IF
+
+                 IF ( HOL .GE.  0.9 ) THEN  !VERY STABLE
+                    SIGMACAN = 0.25*Met_Data%USTAR( C,R )
+                 END IF
+
+                 IF ( ZCAN .EQ. ZFL )  THEN ! Initial/First model layer above canopy
+                  EDDYVEST1 = SIGMACAN*TLCAN
+                 ELSE IF (ZCAN .LE. Met_Data%FCH( C,R ) )  THEN !inside of canopy 
+                  EDDYVEST = SIGMACAN*TLCAN
+                  EDDYV( C,R,L ) = EDDYV( C,R,L ) + ((EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST)
+                  LAYCAN = LAYCAN + 1
+                 END IF
+                 ZCAN = ZCAN-0.5  !Step down in-canopy resolution of 0.5 m  
+              END DO
+              EDDYV( C,R,L ) = EDDYV( C,R,L )/LAYCAN !linear average of diffusivity though canopy
+           END IF !contigous canopy conditions
+          END IF  ! first model layer
+         END IF   !canopy effects switch
 
 211   CONTINUE       !  end loop on columns
 222   CONTINUE       !  end loop on rows
