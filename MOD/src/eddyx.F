@@ -284,8 +284,9 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
                     SIGMACAN = 0.25*Met_Data%USTAR( C,R )
                  END IF
 
-                 IF ( ZCAN .EQ. ZFL )  THEN ! Initial/First model layer above canopy
+                 IF ( ZCAN .EQ. ZFL )  THEN ! Initial/First model layer above canopy (counted in average)
                   EDDYVEST1 = SIGMACAN*TLCAN
+                  LAYCAN = LAYCAN + 1 !count canopy layers
                  ELSE IF (ZCAN .LE. Met_Data%FCH( C,R ) )  THEN !inside of canopy 
                   EDDYVEST = SIGMACAN*TLCAN
                   EDDYV( C,R,L ) = EDDYV( C,R,L ) + ((EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST) !sum diffusivities
