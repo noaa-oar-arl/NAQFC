@@ -69,13 +69,13 @@ C**********************************************************************
       USE SA_DEFN
 #endif
       USE HRDATA
-      USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ, RJ_CORR   ! photolysis rate, in-line module
+      USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ !, RJ_CORR   ! photolysis rate, in-line module
       USE PA_DEFN, Only: LIRR                             ! Process Analysis control and data variable
       USE PA_IRR_CLT
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
-      USE RUNTIME_VARS, ONLY : CANOPY_SHADE     !Used for turning on Canopy Shade to reduce Photolysis
-      USE ASX_DATA_MOD, ONLY : MET_DATA         !Used for Canopy Shade variables
+!      USE RUNTIME_VARS, ONLY : CANOPY_SHADE     !Used for turning on Canopy Shade to reduce Photolysis
+!      USE ASX_DATA_MOD, ONLY : MET_DATA         !Used for Canopy Shade variables
  
       IMPLICIT NONE
 
@@ -366,6 +366,9 @@ c..Load ICs
                   DO S = 1, MODEL_SPECIES
                      YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
                   END DO
+                  IF ( CANOPY_SHADE ) THEN
+                   WRITE(*,*) 'RJIN = ', RJIN(NCELL,:)
+                  END IF
                   CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
      &                              JDATE, JTIME)
                END IF
@@ -451,82 +454,82 @@ c..Update concentration array
 c..update irrout arrays if needed
                IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
 
-c..compute canopy shade reduction to photolysis
-               IF ( CANOPY_SHADE ) THEN 
-                IF (L .EQ. 1) THEN !first model layer
-                  IF ( Met_Data%LAIE( C,R ) .GE. 0.1  !conditions for continuous forest canopy
-     &                         .AND. Met_Data%FCH( C,R ) .GE. 0.5
-     &                         .AND. MAX(0.0, 1.0 - Met_Data%FRT( C,R )) .LE. 0.5
-     &                         .AND. Met_Data%POPU( C,R ) .LE. 10000.0) THEN
-
-                   IF (EXP(-0.5*Met_Data%LAIE( C,R )*Met_Data%CLU( C,R )) .LE. 0.45 !additional condition for clumping & short trees
-     &                                               .AND. Met_Data%FCH( C,R ) .GE. 18.0 ) THEN
-
-                      CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN*RJ_CORR(C,R), HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
-                      FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
-
-#ifdef isam
-#if defined(isam) || defined(verbose_isam)
-C...For diagnosing IRR calculations in log files
-                IF( CHECK_ISAM )THEN
-                   WRITE_CELL = .FALSE.
-                   IF( C .EQ. MAX(1, NCOLS/2) .AND. R .EQ. MAX(1,NROWS/2) .AND. L .EQ. 1 )THEN
-                        WRITE_CELL = .TRUE.
-                        WRITE(LOGDEV,*)'WRITE_CELL = .TRUE.'
-                   ELSE
-                        WRITE_CELL = .FALSE.
-                   END IF
-                END IF
-#endif
-               CALL SA_IRR_EXTRACT( C, R, L, DENS( C,R,L ),YC )
-#endif
-
-c..Call EBI solver
-               N_EBI_IT = 0
-
-               CALL HRSOLVER( JDATE, JTIME, C, R, L )
-
-#ifdef hrstats
-               MXEBI  = MAX( MXEBI, N_EBI_IT )
-               MNEBI  = MIN( MNEBI, N_EBI_IT )
-               SUMEBI = SUMEBI + REAL( N_EBI_IT )
-#endif
-
-
-c..Update concentration array
-               DO SPC = 1, NUMB_MECH_SPC
-                  S = CGRID_INDEX( SPC )
-                  IF( CONVERT_CONC( SPC ) )THEN 
-                      CGRID( C,R,L,S ) = (CGRID( C,R,L,S ) + (REAL( REVERSE_CONV( SPC ) * DENS( C,R,L )
-     &                                 * MAX( YC( SPC ), DCONMIN), 4)))/2.0
-                  ELSE
-                      CGRID( C,R,L,S ) = (CGRID( C,R,L,S ) + REAL( MAX( YC( SPC ), DCONMIN), 4))/2.0
-                  END IF
-               END DO
-
-               IF(CALL_DEG)THEN  ! WTH: update based on degrade routines
-                  CALL FINAL_DEGRADE(YCCELL)
-                  UPDATE_DEGRADED2: DO SPC = 1, N_REACT
-                     ISP = RXTANT_MAP( SPC )
-                     IF( ISP .LE. 0 )CYCLE UPDATE_DEGRADED2
-                     DO S = 1, NUMB_MECH_SPC
-                        IF(  CGRID_INDEX( S ) .EQ. ISP )CYCLE UPDATE_DEGRADED2
-                     END DO
-                     CGRID(C,R,L,ISP) = (CGRID(C,R,L,ISP) + REAL( YCCELL(ISP), 4))/2.0
-                  END DO UPDATE_DEGRADED2
-               END IF
-
-#ifdef isam
-               CALL SA_IRR_UPLOAD( C, R, L, DENS( C,R,L ), YC )
-#endif
-
-c..update irrout arrays if needed
-               IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
-
-                  END IF ! additional canopy condition
-                 END IF ! continuous canopy conditions
-                END IF !layer 1
-               END IF !canopy shade
+!c..compute canopy shade reduction to photolysis
+!               IF ( CANOPY_SHADE ) THEN 
+!                IF (L .EQ. 1) THEN !first model layer
+!                  IF ( Met_Data%LAIE( C,R ) .GE. 0.1  !conditions for continuous forest canopy
+!     &                         .AND. Met_Data%FCH( C,R ) .GE. 0.5
+!     &                         .AND. MAX(0.0, 1.0 - Met_Data%FRT( C,R )) .LE. 0.5
+!     &                         .AND. Met_Data%POPU( C,R ) .LE. 10000.0) THEN
+!
+!                   IF (EXP(-0.5*Met_Data%LAIE( C,R )*Met_Data%CLU( C,R )) .LE. 0.45 !additional condition for clumping & short trees
+!     &                                               .AND. Met_Data%FCH( C,R ) .GE. 18.0 ) THEN
+!
+!                      CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN*RJ_CORR(C,R), HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
+!                      FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
+!
+!#ifdef isam
+!#if defined(isam) || defined(verbose_isam)
+!C...For diagnosing IRR calculations in log files
+!                IF( CHECK_ISAM )THEN
+!                   WRITE_CELL = .FALSE.
+!                   IF( C .EQ. MAX(1, NCOLS/2) .AND. R .EQ. MAX(1,NROWS/2) .AND. L .EQ. 1 )THEN
+!                        WRITE_CELL = .TRUE.
+!                        WRITE(LOGDEV,*)'WRITE_CELL = .TRUE.'
+!                   ELSE
+!                        WRITE_CELL = .FALSE.
+!                   END IF
+!                END IF
+!#endif
+!               CALL SA_IRR_EXTRACT( C, R, L, DENS( C,R,L ),YC )
+!#endif
+!
+!c..Call EBI solver
+!               N_EBI_IT = 0
+!
+!               CALL HRSOLVER( JDATE, JTIME, C, R, L )
+!
+!#ifdef hrstats
+!               MXEBI  = MAX( MXEBI, N_EBI_IT )
+!               MNEBI  = MIN( MNEBI, N_EBI_IT )
+!               SUMEBI = SUMEBI + REAL( N_EBI_IT )
+!#endif
+!
+!
+!c..Update concentration array
+!               DO SPC = 1, NUMB_MECH_SPC
+!                  S = CGRID_INDEX( SPC )
+!                  IF( CONVERT_CONC( SPC ) )THEN 
+!                      CGRID( C,R,L,S ) = (CGRID( C,R,L,S ) + (REAL( REVERSE_CONV( SPC ) * DENS( C,R,L )
+!     &                                 * MAX( YC( SPC ), DCONMIN), 4)))/2.0
+!                  ELSE
+!                      CGRID( C,R,L,S ) = (CGRID( C,R,L,S ) + REAL( MAX( YC( SPC ), DCONMIN), 4))/2.0
+!                  END IF
+!               END DO
+!
+!               IF(CALL_DEG)THEN  ! WTH: update based on degrade routines
+!                  CALL FINAL_DEGRADE(YCCELL)
+!                  UPDATE_DEGRADED2: DO SPC = 1, N_REACT
+!                     ISP = RXTANT_MAP( SPC )
+!                     IF( ISP .LE. 0 )CYCLE UPDATE_DEGRADED2
+!                     DO S = 1, NUMB_MECH_SPC
+!                        IF(  CGRID_INDEX( S ) .EQ. ISP )CYCLE UPDATE_DEGRADED2
+!                     END DO
+!                     CGRID(C,R,L,ISP) = (CGRID(C,R,L,ISP) + REAL( YCCELL(ISP), 4))/2.0
+!                  END DO UPDATE_DEGRADED2
+!               END IF
+!
+!#ifdef isam
+!               CALL SA_IRR_UPLOAD( C, R, L, DENS( C,R,L ), YC )
+!#endif
+!
+!c..update irrout arrays if needed
+!               IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
+!
+!                  END IF ! additional canopy condition
+!                 END IF ! continuous canopy conditions
+!                END IF !layer 1
+!               END IF !canopy shade
 
             END DO
          END DO

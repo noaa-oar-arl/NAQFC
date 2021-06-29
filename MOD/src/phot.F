@@ -1135,21 +1135,21 @@ C...modules
 
                      IF ( CANOPY_SHADE ) THEN ! compute canopy shade reduction factor (RJ_CORR) for gas solver call (hrdriver.F)
                             !conditions for grid cells that do NOT have a continuous forest canopy
-!                            IF ( Met_Data%LAIE( COL,ROW ) .LT. 0.1
-!     &                         .OR. Met_Data%FCH( COL,ROW ) .LT. 0.5
-!     &                         .OR. MAX(0.0, 1.0 - Met_Data%FRT( COL,ROW )) .GT. 0.5
-!     &                         .OR. Met_Data%POPU( COL,ROW ) .GT. 10000.0
-!     &                         .OR. EXP(-0.5*Met_Data%LAIE( COL,ROW )*Met_Data%CLU( COL,ROW )) .GT. 0.45
-!     &                                               .AND. Met_Data%FCH( COL,ROW ) .LT. 18.0 ) THEN
-!                                RJ( COL,ROW, 1, : ) = RJ( COL,ROW, 1, : )
-!                            ELSE ! There is a contiguous forest canopy, apply correctoin
+                            IF ( Met_Data%LAIE( COL,ROW ) .LT. 0.1
+     &                         .OR. Met_Data%FCH( COL,ROW ) .LT. 0.5
+     &                         .OR. MAX(0.0, 1.0 - Met_Data%FRT( COL,ROW )) .GT. 0.5
+     &                         .OR. Met_Data%POPU( COL,ROW ) .GT. 10000.0
+     &                         .OR. EXP(-0.5*Met_Data%LAIE( COL,ROW )*Met_Data%CLU( COL,ROW )) .GT. 0.45
+     &                                               .AND. Met_Data%FCH( COL,ROW ) .LT. 18.0 ) THEN
+                                RJ( COL,ROW, 1, : ) = RJ( COL,ROW, 1, : )
+                            ELSE ! There is a contiguous forest canopy, apply correctoin
                             !RJ_CORR effectly represents the beam attenuation and reduces photolysis.
                             !Nilson, T. A theoretical analysis of the frequency of gaps in plant stands. Agric. Meterol. 8, 25⚌~Z~L~@~S38 (1971).
                                 RJ_CORR( COL,ROW ) = MAX(1.0E-10, EXP(-1.0*(0.5*Met_Data%LAIE( COL,ROW )
      &                                         *Met_Data%CLU( COL,ROW ))/MAX(0.05, COSZEN)))
-!                                RJ( COL,ROW, 1, : ) = ( RJ( COL,ROW, 1, : )
-!     &                                            + (RJ( COL,ROW, 1, : )*RJ_CORR( COL,ROW )) )/2.0
-!                            END IF
+                                RJ( COL,ROW, 1, : ) = ( RJ( COL,ROW, 1, : )
+     &                                            + (RJ( COL,ROW, 1, : )*RJ_CORR( COL,ROW )) )/2.0
+                            END IF
                      END IF
 !--------------------------------------------------------------------------------------------------------------------------
 
