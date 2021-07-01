@@ -98,7 +98,6 @@ C Local variables:
       REAL    ZFL                    ! local ZF
       REAL    ZCAN, TLCAN, HOL, SIGMACAN, EDDYVEST, EDDYVEST1  ! local canopy parameters
       REAL    RRCAN, AACAN, BBCAN
-      INTEGER LAYCAN ! local canopy parameters
 
       REAL, PARAMETER :: PICAN = 3.1415927 ! Declare local constant Pi
 
@@ -228,10 +227,8 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
                 !Raupauch M. R. A Practical Lagrangian method for relating scalar concentrations to 
                 ! source distributions in vegetation canopies. Q. J. R. Meteor. Soc. (1989), 115, pp 609-632
               
-              WRITE(*,*) 'MODEL_EDDYV(C,R,L ) = ', EDDYV( C,R,L )
               HOL = Met_Data%FCH( C,R ) * Met_Data%MOLI( C,R )  !hc/L canopy stability parameter
               ZCAN = ZFL  ! Initialize canopy top (m) = First model layer above canopy (L=1)
-              LAYCAN = 0  ! Initialize number of canopy layers
               DO WHILE (ZCAN.GE.0.5)  !canopy threshold >= 0.5 m
                  ! TLCAN = Lagrangian timescale
                  TLCAN = (Met_Data%FCH( C,R )/Met_Data%USTAR( C,R )) * (
@@ -284,20 +281,18 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
                     SIGMACAN = 0.25*Met_Data%USTAR( C,R )
                  END IF
 
-                 IF ( ZCAN .EQ. ZFL )  THEN ! Initial/First model layer above canopy (counted in average)
+                 IF ( ZCAN .EQ. ZFL )  THEN ! Initial/First model layer above canopy
                   EDDYVEST1 = (SIGMACAN*SIGMACAN)*TLCAN
-                  LAYCAN = LAYCAN + 1 !count canopy layers
                  ELSE IF (ZCAN .LE. Met_Data%FCH( C,R ) )  THEN !inside of canopy 
-                  EDDYVEST = SIGMACAN*TLCAN
-                  EDDYV( C,R,L ) = EDDYV( C,R,L ) + ((EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST) !sum diffusivities
-                  LAYCAN = LAYCAN + 1 !count canopy layers
+                  EDDYVEST = (SIGMACAN*SIGMACAN)*TLCAN
                  END IF
                  ZCAN = ZCAN-0.5  !Step down in-canopy resolution of 0.5 m  
 
-              END DO !canopy layers
+              END DO !end loop on canopy layers
+              
+!             linear average of lowest canopy layer (above lower limit = 0.5 m) and layer above canopy height
+              EDDYV( C,R,L ) = (EDDYV( C,R,L ) + ((EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST))/2.0               
 
-              EDDYV( C,R,L ) = EDDYV( C,R,L )/LAYCAN !average of diffusivity for all canopy layers
-              WRITE(*,*) 'CANOPY_EDDYV(C,R,L ) = ', EDDYV( C,R,L )
            END IF !contigous canopy conditions
           END IF  ! first model layer
          END IF   !canopy effects switch
