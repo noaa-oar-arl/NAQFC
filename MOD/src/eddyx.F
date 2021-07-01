@@ -263,7 +263,7 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
 
                  IF ( HOL .GE.  0.1  .AND.  HOL .LT. 0.9 )   THEN  !STABLE
                   IF ( ZCAN/Met_Data%FCH( C,R ) .GT. 1.25 ) THEN
-                    SIGMACAN = 1.
+                    SIGMACAN = 0.25*(4.375 - (3.75*HOL))*Met_Data%USTAR(C,R )
                   END IF
                   IF ( ZCAN/Met_Data%FCH( C,R ) .GE. 0.175  .AND.  ZCAN/Met_Data%FCH( C,R ) .LE. 1.25 ) THEN
                     RRCAN=4.375-(3.75*HOL)
@@ -291,6 +291,7 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
               END DO !end loop on canopy layers
               
 !             linear average of lowest canopy layer (above lower limit = 0.5 m) and layer above canopy height
+!             *Needs fixing to someway incorporate all layers stepping down through canopy
               EDDYV( C,R,L ) = (EDDYV( C,R,L ) + ((EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST))/2.0               
 
            END IF !contigous canopy conditions
