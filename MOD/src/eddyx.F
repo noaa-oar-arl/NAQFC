@@ -283,7 +283,7 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
 
                  IF ( ZCAN .EQ. ZFL )  THEN ! Initial/First model layer above canopy
                   EDDYVEST1 = (SIGMACAN*SIGMACAN)*TLCAN
-                 ELSE IF (ZCAN .LE. Met_Data%FCH( C,R ) )  THEN !inside of canopy 
+                 ELSE ! layers below ZCAN=ZFL 
                   EDDYVEST = (SIGMACAN*SIGMACAN)*TLCAN
                  END IF
                  ZCAN = ZCAN-0.5  !Step down in-canopy resolution of 0.5 m  
