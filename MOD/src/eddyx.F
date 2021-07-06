@@ -292,8 +292,8 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
               
 !             linear average of lowest canopy layer (above lower limit = 0.5 m) and layer above canopy height
 !             *Needs fixing to someway incorporate all layers stepping down through canopy
-              EDDYV( C,R,L ) = (EDDYV( C,R,L ) + ((EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST))/2.0               
-
+!              EDDYV( C,R,L ) =  (EDDYV( C,R,L ) + ((EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST))/2.0               
+               EDDYV( C,R,L ) = (EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST !Just scales to resolved eddy diffusivity
            END IF !contigous canopy conditions
           END IF  ! first model layer
          END IF   !canopy effects switch
