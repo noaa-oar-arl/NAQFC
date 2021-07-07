@@ -98,6 +98,7 @@ C Local variables:
       REAL    ZFL                    ! local ZF
       REAL    ZCAN, TLCAN, HOL, SIGMACAN, EDDYVEST, EDDYVEST1  ! local canopy parameters
       REAL    RRCAN, AACAN, BBCAN
+!      INTEGER COUNTCAN
 
       REAL, PARAMETER :: PICAN = 3.1415927 ! Declare local constant Pi
 
@@ -228,7 +229,9 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
                 ! source distributions in vegetation canopies. Q. J. R. Meteor. Soc. (1989), 115, pp 609-632
               
               HOL = Met_Data%FCH( C,R ) * Met_Data%MOLI( C,R )  !hc/L canopy stability parameter
-              ZCAN = ZFL  ! Initialize canopy top (m) = First model layer above canopy (L=1)
+              ZCAN = ZFL   ! Initialize canopy top (m) = First model layer above canopy (L=1)
+!              COUNTCAN = 0 ! Initialize canopy layers
+!             EDDYVEST  = 0 ! Initialize eddy diffusivity in canopy
               DO WHILE (ZCAN.GE.0.5)  !canopy threshold >= 0.5 m
                  ! TLCAN = Lagrangian timescale
                  TLCAN = (Met_Data%FCH( C,R )/Met_Data%USTAR( C,R )) * (
@@ -281,19 +284,19 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
                     SIGMACAN = 0.25*Met_Data%USTAR( C,R )
                  END IF
 
-                 IF ( ZCAN .EQ. ZFL )  THEN ! Initial/First model layer above canopy
+                 IF ( ZCAN .EQ. ZFL )  THEN ! First model layer above canopy
                   EDDYVEST1 = (SIGMACAN*SIGMACAN)*TLCAN
-                 ELSE ! layers below ZCAN=ZFL 
+                 ELSE !in-canopy layers
                   EDDYVEST = (SIGMACAN*SIGMACAN)*TLCAN
+!                  EDDYVEST = EDDYVEST + ((SIGMACAN*SIGMACAN)*TLCAN)  !sum in-canopy eddy diffusivities
+!                  COUNTCAN = COUNTCAN + 1
                  END IF
-                 ZCAN = ZCAN-0.5  !Step down in-canopy resolution of 0.5 m  
+                 ZCAN = ZCAN-0.5  !in-canopy resolution of 0.5 m  
 
               END DO !end loop on canopy layers
-              
-!             linear average of lowest canopy layer (above lower limit = 0.5 m) and layer above canopy height
-!             *Needs fixing to someway incorporate all layers stepping down through canopy
-!              EDDYV( C,R,L ) =  (EDDYV( C,R,L ) + ((EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST))/2.0               
-               EDDYV( C,R,L ) = (EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST !Just scales to resolved eddy diffusivity
+!              EDDYVEST=EDDYVEST/COUNTCAN  !average in-canopy eddy diffusivities  
+
+              EDDYV( C,R,L ) = (EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST !Scale to resolved eddy diffusivity
            END IF !contigous canopy conditions
           END IF  ! first model layer
          END IF   !canopy effects switch
