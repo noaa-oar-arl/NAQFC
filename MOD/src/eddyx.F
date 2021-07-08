@@ -46,15 +46,17 @@ C--------------------------------------------------------------------------
       USE GRID_CONF             ! horizontal domain specifications
       USE ASX_DATA_MOD          ! Includes CONST
       USE UTILIO_DEFN
-      USE RUNTIME_VARS, ONLY : CANOPY_SHADE     !Used for turning on Canopy Shade to reduce vertical diffusivity
+      USE RUNTIME_VARS, ONLY : CANOPY_SHADE                       !Used for turning on Canopy Shade to reduce vertical diffusivity
+      USE centralized_io_util_module, ONLY: IntegrateTrapezoid    !Used for canopy turbulence integration
 
       IMPLICIT NONE
 
 C Includes:
 
 C Arguments:
-      REAL,   INTENT( OUT ) :: EDDYV ( :,:,: ) ! eddy diffusivity (m**2/s)
-
+      REAL, INTENT( OUT )   :: EDDYV     ( :,:,: )  ! eddy diffusivity (m**2/s)
+      REAL, ALLOCATABLE     :: EDDYVESTX ( : )      ! in canopy eddy diffusivity [ m**2/s ]
+      REAL, ALLOCATABLE     :: ZCANX     ( : )      ! in canopy layer [m]
 C Parameters:
 
       REAL, PARAMETER :: RLAM   = 80.0 ! asymptotic mixing length (m)
@@ -96,11 +98,12 @@ C Local variables:
       REAL    WT, ZSOL
       REAL    EDYZ
       REAL    ZFL                    ! local ZF
-      REAL    ZCAN, TLCAN, HOL, SIGMACAN, EDDYVEST, EDDYVEST1  ! local canopy parameters
+      REAL    ZCAN, TLCAN, HOL, SIGMACAN, EDDYVEST1, EDDYVEST_INT  ! local canopy parameters
       REAL    RRCAN, AACAN, BBCAN
-!      INTEGER COUNTCAN
+      INTEGER COUNTCAN
 
       REAL, PARAMETER :: PICAN = 3.1415927 ! Declare local constant Pi
+      INTEGER, PARAMETER :: MAXCAN = 1000 ! Declare local maximum canopy layers
 
       CHARACTER( 16 ) :: PNAME = 'EDDYX'
       CHARACTER( 16 ) :: VNAME
@@ -108,6 +111,9 @@ C Local variables:
       CHARACTER( 96 ) :: XMSG = ' '
 
 C-----------------------------------------------------------------------
+
+      ALLOCATE( EDDYVESTX    ( MAXCAN ) )
+      ALLOCATE( ZCANX        ( MAXCAN ) )   
 
       MEDDYV = 0.0
 
@@ -229,9 +235,9 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
                 ! source distributions in vegetation canopies. Q. J. R. Meteor. Soc. (1989), 115, pp 609-632
               
               HOL = Met_Data%FCH( C,R ) * Met_Data%MOLI( C,R )  !hc/L canopy stability parameter
-              ZCAN = ZFL   ! Initialize canopy top (m) = First model layer above canopy (L=1)
-!              COUNTCAN = 0 ! Initialize canopy layers
-!             EDDYVEST  = 0 ! Initialize eddy diffusivity in canopy
+              ZCAN = ZFL    ! Initialize canopy top (m) = First model layer above canopy (L=1)
+              COUNTCAN = 0  ! Initialize canopy layers
+              WRITE(*,*) 'EDDYV( C,R,L ) = ', EDDYV( C,R,L ) 
               DO WHILE (ZCAN.GE.0.5)  !canopy threshold >= 0.5 m
                  ! TLCAN = Lagrangian timescale
                  TLCAN = (Met_Data%FCH( C,R )/Met_Data%USTAR( C,R )) * (
@@ -286,17 +292,22 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
 
                  IF ( ZCAN .EQ. ZFL )  THEN ! First model layer above canopy
                   EDDYVEST1 = (SIGMACAN*SIGMACAN)*TLCAN
-                 ELSE !in-canopy layers
-                  EDDYVEST = (SIGMACAN*SIGMACAN)*TLCAN
-!                  EDDYVEST = EDDYVEST + ((SIGMACAN*SIGMACAN)*TLCAN)  !sum in-canopy eddy diffusivities
-!                  COUNTCAN = COUNTCAN + 1
+                 ELSE !in-canopy layers and set arrays
+                  COUNTCAN = COUNTCAN + 1
+                  ZCANX (COUNTCAN)     = ZCAN
+                  EDDYVESTX (COUNTCAN) = (SIGMACAN*SIGMACAN)*TLCAN 
+             
+                  WRITE(*,*) 'ZCAN = ', ZCAN, 'COUNTCAN = ', COUNTCAN, 'EDDYVESTX = ', EDDYVESTX
                  END IF
-                 ZCAN = ZCAN-0.5  !in-canopy resolution of 0.5 m  
+                 ZCAN = ZCAN-0.5  !step down in-canopy resolution of 0.5 m  
 
               END DO !end loop on canopy layers
-!              EDDYVEST=EDDYVEST/COUNTCAN  !average in-canopy eddy diffusivities  
 
-              EDDYV( C,R,L ) = (EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST !Scale to resolved eddy diffusivity
+                 EDDYVEST_INT = IntegrateTrapezoid((ZCANX(1:COUNTCAN)/Met_Data%FCH( C,R )),EDDYVESTX(1:COUNTCAN))
+
+              WRITE(*,*) 'EDDYVEST_INT = ', EDDYVEST_INT
+              EDDYV( C,R,L ) = (EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST_INT !Scale to resolved eddy diffusivity
+
            END IF !contigous canopy conditions
           END IF  ! first model layer
          END IF   !canopy effects switch
