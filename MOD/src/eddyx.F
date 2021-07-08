@@ -238,7 +238,7 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
               HOL = Met_Data%FCH( C,R ) * Met_Data%MOLI( C,R )  !local canopy stability parameter (hc/L)
               ZCAN = ZFL    ! Initialize canopy top (m) = First model layer above canopy
               COUNTCAN = 0  ! Initialize canopy layers
-              WRITE(*,*) 'EDDYV_NO_CANOPY = ', EDDYV( C,R,L ) 
+!              WRITE(*,*) 'EDDYV_NO_CANOPY = ', EDDYV( C,R,L ) 
 
               DO WHILE (ZCAN.GE.0.5)  !canopy threshold >= 0.5 m
                  ! TLCAN = Lagrangian timescale
@@ -299,17 +299,17 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
                   ZCANX (COUNTCAN)     = ZCAN
                   EDDYVESTX (COUNTCAN) = (SIGMACAN*SIGMACAN)*TLCAN 
              
-                  WRITE(*,*) 'COUNTCAN = ', COUNTCAN, 'ZCANX = ', ZCANX(COUNTCAN), 'EDDYVESTX = ', EDDYVESTX (COUNTCAN)
+!                  WRITE(*,*) 'COUNTCAN = ', COUNTCAN, 'ZCANX = ', ZCANX(COUNTCAN), 'EDDYVESTX = ', EDDYVESTX (COUNTCAN)
                  END IF
                  ZCAN = ZCAN-0.5  !step down in-canopy resolution of 0.5 m  
 
               END DO !end loop on canopy layers
 
-              EDDYVEST_INT = IntegrateTrapezoid((ZCANX(1:COUNTCAN)/Met_Data%FCH( C,R )),EDDYVESTX(1:COUNTCAN))
+              EDDYVEST_INT = IntegrateTrapezoid((ZCANX(COUNTCAN:1:-1)/Met_Data%FCH( C,R )),EDDYVESTX(COUNTCAN:1:-1))
 
-              WRITE(*,*) 'EDDYVEST_INT = ', EDDYVEST_INT
+!              WRITE(*,*) 'EDDYVEST_INT = ', EDDYVEST_INT
               EDDYV( C,R,L ) = (EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST_INT !Scale to resolved eddy diffusivity
-              WRITE(*,*) 'EDDYV_CANOPY = ', EDDYV( C,R,L )
+!              WRITE(*,*) 'EDDYV_CANOPY = ', EDDYV( C,R,L )
 
            END IF !contigous canopy conditions
           END IF  ! first model layer
