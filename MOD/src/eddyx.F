@@ -111,9 +111,10 @@ C Local variables:
       CHARACTER( 96 ) :: XMSG = ' '
 
 C-----------------------------------------------------------------------
-
-      ALLOCATE( EDDYVESTX    ( MAXCAN ) )
-      ALLOCATE( ZCANX        ( MAXCAN ) )   
+      IF ( CANOPY_SHADE ) THEN
+        ALLOCATE( EDDYVESTX    ( MAXCAN ) )
+        ALLOCATE( ZCANX        ( MAXCAN ) )   
+      END IF
 
       MEDDYV = 0.0
 
@@ -234,10 +235,11 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
                 !Raupauch M. R. A Practical Lagrangian method for relating scalar concentrations to 
                 ! source distributions in vegetation canopies. Q. J. R. Meteor. Soc. (1989), 115, pp 609-632
               
-              HOL = Met_Data%FCH( C,R ) * Met_Data%MOLI( C,R )  !hc/L canopy stability parameter
-              ZCAN = ZFL    ! Initialize canopy top (m) = First model layer above canopy (L=1)
+              HOL = Met_Data%FCH( C,R ) * Met_Data%MOLI( C,R )  !local canopy stability parameter (hc/L)
+              ZCAN = ZFL    ! Initialize canopy top (m) = First model layer above canopy
               COUNTCAN = 0  ! Initialize canopy layers
               WRITE(*,*) 'EDDYV( C,R,L ) = ', EDDYV( C,R,L ) 
+
               DO WHILE (ZCAN.GE.0.5)  !canopy threshold >= 0.5 m
                  ! TLCAN = Lagrangian timescale
                  TLCAN = (Met_Data%FCH( C,R )/Met_Data%USTAR( C,R )) * (
