@@ -306,7 +306,8 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
               END DO !end loop on canopy layers
 
               EDDYVEST_INT = IntegrateTrapezoid((ZCANX(COUNTCAN:1:-1)/Met_Data%FCH( C,R )),EDDYVESTX(COUNTCAN:1:-1))
-
+!              WRITE(*,*) 'ZCANX = ', ZCANX(COUNTCAN:1:-1)
+!              WRITE(*,*) 'EDDYVESTX = ', EDDYVESTX(COUNTCAN:1:-1)
 !              WRITE(*,*) 'EDDYVEST_INT = ', EDDYVEST_INT
               EDDYV( C,R,L ) = (EDDYV( C,R,L )/EDDYVEST1) * EDDYVEST_INT !Scale to resolved eddy diffusivity
 !              WRITE(*,*) 'EDDYV_CANOPY = ', EDDYV( C,R,L )
