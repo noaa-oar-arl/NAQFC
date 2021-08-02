@@ -1136,7 +1136,7 @@ C...modules
                      IF ( CANOPY_SHADE ) THEN ! compute canopy shade reduction factor (RJ_CORR)
                             !conditions for grid cells that do NOT have a continuous forest canopy
                             IF ( Met_Data%LAIE( COL,ROW ) .LT. 0.1
-     &                         .OR. Met_Data%FCH( COL,ROW ) .LT. 0.5
+     &                         .OR. Met_Data%FCH( COL,ROW ) .LT. 10.0
      &                         .OR. MAX(0.0, 1.0 - Met_Data%FRT( COL,ROW )) .GT. 0.5
      &                         .OR. Met_Data%POPU( COL,ROW ) .GT. 10000.0
      &                         .OR. EXP(-0.5*Met_Data%LAIE( COL,ROW )*Met_Data%CLU( COL,ROW )) .GT. 0.45
