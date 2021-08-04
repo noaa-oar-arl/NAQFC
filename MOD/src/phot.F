@@ -124,6 +124,8 @@ C...modules
       USE CLOUD_OPTICS         ! data and routines for optics of cloud hydrometeors
       USE SEAS_STRAT_O3_MIN    ! monthly minimum fraction of ozone column density above Pressure TOP
       USE CENTRALIZED_IO_MODULE, ONLY : LAT, LON, HT
+      USE centralized_io_util_module, ONLY: IntegrateTrapezoid, interp_linear1_internal !Used for canopy
+   
 
       USE RUNTIME_VARS, ONLY : CANOPY_SHADE     !Used for turning on Canopy Shade to reduce Photolysis
       USE ASX_DATA_MOD, ONLY : MET_DATA         !Used for Canopy Shade variables
@@ -316,6 +318,12 @@ C...modules
       REAL, ALLOCATABLE, SAVE :: ACTINIC_FX( :,:,:,: ) ! net actinic flux [watts/m**2]
       REAL, ALLOCATABLE, SAVE :: AERO_EXT_550( :,:,: ) ! aerosol extinction at 550 nm for layer [1/m]
       REAL, ALLOCATABLE, SAVE :: OUTPUT_BUFF ( :,:,: ) ! output buffer for DIAG2 and DIAG3 files
+!     Canopy Variables
+      REAL, ALLOCATABLE       :: ZCANX    ( : )        ! canopy heights [m]
+      REAL, ALLOCATABLE       :: RJ_CORRX ( : )        ! canopy height dependent photolysis attenuation factor
+      REAL                    :: XCAN     ( 2 )        ! canopy height interpolation bounds
+      REAL                    :: YCAN     ( 2 )        ! photolysis attenuation interpolation bounds
+      REAL ZFL, ZCAN, COUNTCAN, XCANOUT                ! local canopy variables
 
       INTERFACE
          SUBROUTINE O3TOTCOL ( LATITUDE, LONGITUDE, JDATE, JTIME, OZONE )
@@ -1136,7 +1144,8 @@ C...modules
                      IF ( CANOPY_SHADE ) THEN ! compute canopy shade reduction factor (RJ_CORR)
                             !conditions for grid cells that do NOT have a continuous forest canopy
                             IF ( Met_Data%LAIE( COL,ROW ) .LT. 0.1
-     &                         .OR. Met_Data%FCH( COL,ROW ) .LT. 10.0
+     &                         .OR. Met_Data%FCH( COL,ROW ) .LT. 0.5
+!     &                         .OR. Met_Data%FCH( COL,ROW ) .LT. 10.0
      &                         .OR. MAX(0.0, 1.0 - Met_Data%FRT( COL,ROW )) .GT. 0.5
      &                         .OR. Met_Data%POPU( COL,ROW ) .GT. 10000.0
      &                         .OR. EXP(-0.5*Met_Data%LAIE( COL,ROW )*Met_Data%CLU( COL,ROW )) .GT. 0.45
@@ -1159,19 +1168,79 @@ C...modules
      &                                         *Met_Data%CLU( COL,ROW ))/MAX(0.05, COSZEN)))
 
 !Interpolate to get attenuation profile below canopy
-
-                                RJ_CORR( COL,ROW ) = ( RJ_CORR_C1R( COL,ROW ) + RJ_CORR_C2R( COL,ROW ) + RJ_CORR_C3R( COL,ROW ) +
-     &                                         RJ_CORR_C4R( COL,ROW ) + RJ_CORR_BOT( COL,ROW ) )/5.0  
-
+                                ZFL = Met_Data%ZF( COL,ROW,1 )
+                                ZCAN = ZFL    ! Initialize canopy top (m) = First model layer above canopy
+                                COUNTCAN = 0  ! Initialize canopy layers
+                                DO WHILE (ZCAN.GE.0.5)  !canopy threshold >= 0.5 m
+                                   IF ( ZCAN .GT. Met_Data%FCH( COL,ROW ) ) THEN  
+                                     COUNTCAN = COUNTCAN + 1 
+                                     ZCANX(COUNTCAN) = ZCAN 
+                                     RJ_CORRX (COUNTCAN) = 1.0
+                                   ELSE IF  ( ZCAN .LE. Met_Data%FCH( COL,ROW )   .AND. 
+     &                                        ZCAN .GT. Met_Data%FCH( COL,ROW )*0.75 ) THEN
+                                     COUNTCAN = COUNTCAN + 1
+                                     XCAN(1) = Met_Data%FCH( COL,ROW )
+                                     YCAN(1) = 1.0
+                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.75
+                                     YCAN(2) = RJ_CORR_C1R( COL,ROW )
+                                     XCANOUT = ZCAN
+                                     ZCANX(COUNTCAN) = ZCAN
+                                     RJ_CORRX (COUNTCAN) = interp_linear1_internal(XCAN,YCAN,XCANOUT)
+                                   ELSE IF ( ZCAN .LE. Met_Data%FCH( COL,ROW )*0.75   .AND. 
+     &                                       ZCAN .GT. Met_Data%FCH( COL,ROW )*0.50 ) THEN
+                                     COUNTCAN = COUNTCAN + 1
+                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.75
+                                     YCAN(1) = RJ_CORR_C1R( COL,ROW )
+                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.50
+                                     YCAN(2) = RJ_CORR_C2R( COL,ROW )
+                                     XCANOUT = ZCAN
+                                     ZCANX(COUNTCAN) = ZCAN
+                                     RJ_CORRX (COUNTCAN) = interp_linear1_internal(XCAN,YCAN,XCANOUT)
+                                   ELSE IF ( ZCAN .LE. Met_Data%FCH( COL,ROW )*0.50   .AND. 
+     &                                       ZCAN .GT. Met_Data%FCH( COL,ROW )*0.35 ) THEN
+                                     COUNTCAN = COUNTCAN + 1
+                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.50
+                                     YCAN(1) = RJ_CORR_C2R( COL,ROW )
+                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.35
+                                     YCAN(2) = RJ_CORR_C3R( COL,ROW )
+                                     XCANOUT = ZCAN
+                                     ZCANX(COUNTCAN) = ZCAN
+                                     RJ_CORRX (COUNTCAN) = interp_linear1_internal(XCAN,YCAN,XCANOUT)
+                                   ELSE IF ( ZCAN .LE. Met_Data%FCH( COL,ROW )*0.35  .AND. 
+     &                                       ZCAN .GT. Met_Data%FCH( COL,ROW )*0.20 ) THEN
+                                     COUNTCAN = COUNTCAN + 1
+                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.35
+                                     YCAN(1) = RJ_CORR_C3R( COL,ROW )
+                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.20
+                                     YCAN(2) = RJ_CORR_C4R( COL,ROW )
+                                     XCANOUT = ZCAN
+                                     ZCANX(COUNTCAN) = ZCAN
+                                     RJ_CORRX (COUNTCAN) = interp_linear1_internal(XCAN,YCAN,XCANOUT)
+                                   ELSE IF ( ZCAN .LE. Met_Data%FCH( COL,ROW )*0.20 ) THEN
+                                     COUNTCAN = COUNTCAN + 1
+                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.20
+                                     YCAN(1) = RJ_CORR_C4R( COL,ROW )
+                                     XCAN(2) = 0.5
+                                     YCAN(2) = RJ_CORR_BOT( COL,ROW )
+                                     XCANOUT = ZCAN
+                                     ZCANX(COUNTCAN) = ZCAN
+                                     RJ_CORRX (COUNTCAN) = interp_linear1_internal(XCAN,YCAN,XCANOUT)
+                                   END IF
+                                   ZCAN = ZCAN-0.5  !step down in-canopy resolution of 0.5 m
+                                END DO !end loop on canopy layers
 
 !Integrate to get best attenuation value to use within canopy
 
+                                RJ_CORR( COL,ROW ) = IntegrateTrapezoid(ZCANX(COUNTCAN:1:-1),RJ_CORRX(COUNTCAN:1:-1))
+
+!Apply attenuation factors above and below canopy
+                                RJ( COL,ROW, 1, : ) = RJ( COL,ROW, 1, : )*RJ_CORR( COL,ROW )
 
 !Apply attenuation value within canopy and take average above and within canopy values                               
-                                RJ( COL,ROW, 1, : ) = ( RJ( COL,ROW, 1, : )
-     &                                            + (RJ( COL,ROW, 1, : )*RJ_CORR( COL,ROW )) )/2.0
-                            END IF
-                     END IF
+!                                RJ( COL,ROW, 1, : ) = ( RJ( COL,ROW, 1, : )
+!     &                                            + (RJ( COL,ROW, 1, : )*RJ_CORR( COL,ROW )) )/2.0
+                            END IF !contigous canopy conditions
+                     END IF        !canopy shade 
 !--------------------------------------------------------------------------------------------------------------------------
 
 

@@ -55,8 +55,6 @@ C Includes:
 
 C Arguments:
       REAL, INTENT( OUT )   :: EDDYV     ( :,:,: )  ! eddy diffusivity (m**2/s)
-      REAL, ALLOCATABLE     :: EDDYVESTX ( : )      ! in canopy eddy diffusivity [ m**2/s ]
-      REAL, ALLOCATABLE     :: ZCANX     ( : )      ! in canopy layer [m]
 C Parameters:
 
       REAL, PARAMETER :: RLAM   = 80.0 ! asymptotic mixing length (m)
@@ -109,6 +107,9 @@ C Local variables:
       CHARACTER( 16 ) :: VNAME
       CHARACTER( 16 ) :: UNITSCK
       CHARACTER( 96 ) :: XMSG = ' '
+
+      REAL, ALLOCATABLE     :: EDDYVESTX ( : )      ! in canopy eddy diffusivity [ m**2/s ]
+      REAL, ALLOCATABLE     :: ZCANX     ( : )      ! in canopy layer [m]
 
 C-----------------------------------------------------------------------
       IF ( CANOPY_SHADE ) THEN
@@ -225,7 +226,8 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
                             !conditions for grid cells that do NOT have a continuous forest canopy
           IF (L .EQ. 1) THEN !first model layer
            IF ( Met_Data%LAIE( C,R ) .LT. 0.1
-     &        .OR. Met_Data%FCH( C,R ) .LT. 10.0
+     &        .OR. Met_Data%FCH( C,R ) .LT. 0.5
+!     &        .OR. Met_Data%FCH( C,R ) .LT. 10.0
      &        .OR. MAX(0.0, 1.0 - Met_Data%FRT( C,R )) .GT. 0.5
      &        .OR. Met_Data%POPU( C,R ) .GT. 10000.0
      &        .OR. EXP(-0.5*Met_Data%LAIE( C,R )*Met_Data%CLU( C,R )) .GT. 0.45
@@ -294,8 +296,8 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
 
                  IF ( ZCAN .EQ. ZFL )  THEN ! First model layer above canopy
                   EDDYVEST1 = (SIGMACAN*SIGMACAN)*TLCAN
-!                 ELSE !in-canopy layers and set arrays
-                 ELSE IF ( ZCAN .LE. Met_Data%FCH( C,R ) )  THEN
+                 ELSE !in-canopy layers and set arrays
+!                 ELSE IF ( ZCAN .LE. Met_Data%FCH( C,R ) )  THEN
                   COUNTCAN = COUNTCAN + 1
                   ZCANX (COUNTCAN)     = ZCAN
                   EDDYVESTX (COUNTCAN) = (SIGMACAN*SIGMACAN)*TLCAN 
