@@ -1145,8 +1145,29 @@ C...modules
                             ELSE ! There is a contiguous forest canopy, apply correctoin
                             !RJ_CORR effectly represents the beam attenuation and reduces photolysis.
                             !Nilson, T. A theoretical analysis of the frequency of gaps in plant stands. Agric. Meterol. 8, 25⚌~Z~L~@~S38 (1971).
-                                RJ_CORR( COL,ROW ) = MAX(1.0E-10, EXP(-1.0*(0.5*Met_Data%LAIE( COL,ROW )
+
+!Calculate attenuation at different set cumulative LAI fractions downward through canopy (C1R, C2R, C3R, C4R data from ECCC)
+                                RJ_CORR_C1R( COL,ROW ) = MAX(1.0E-10, EXP(-1.0*(0.5*(Met_Data%LAIE( COL,ROW )
+     &                                         *Met_Data%C1R( COL,ROW ))*Met_Data%CLU( COL,ROW ))/MAX(0.05, COSZEN)))
+                                RJ_CORR_C2R( COL,ROW ) = MAX(1.0E-10, EXP(-1.0*(0.5*(Met_Data%LAIE( COL,ROW )
+     &                                         *Met_Data%C2R( COL,ROW ))*Met_Data%CLU( COL,ROW ))/MAX(0.05, COSZEN)))
+                                RJ_CORR_C3R( COL,ROW ) = MAX(1.0E-10, EXP(-1.0*(0.5*(Met_Data%LAIE( COL,ROW )
+     &                                         *Met_Data%C3R( COL,ROW ))*Met_Data%CLU( COL,ROW ))/MAX(0.05, COSZEN)))
+                                RJ_CORR_C4R( COL,ROW ) = MAX(1.0E-10, EXP(-1.0*(0.5*(Met_Data%LAIE( COL,ROW )
+     &                                         *Met_Data%C4R( COL,ROW ))*Met_Data%CLU( COL,ROW ))/MAX(0.05, COSZEN)))
+                                RJ_CORR_BOT( COL,ROW ) = MAX(1.0E-10, EXP(-1.0*(0.5*Met_Data%LAIE( COL,ROW )
      &                                         *Met_Data%CLU( COL,ROW ))/MAX(0.05, COSZEN)))
+
+!Interpolate to get attenuation profile below canopy
+
+                                RJ_CORR( COL,ROW ) = ( RJ_CORR_C1R( COL,ROW ) + RJ_CORR_C2R( COL,ROW ) + RJ_CORR_C3R( COL,ROW ) +
+     &                                         RJ_CORR_C4R( COL,ROW ) + RJ_CORR_BOT( COL,ROW ) )/5.0  
+
+
+!Integrate to get best attenuation value to use within canopy
+
+
+!Apply attenuation value within canopy and take average above and within canopy values                               
                                 RJ( COL,ROW, 1, : ) = ( RJ( COL,ROW, 1, : )
      &                                            + (RJ( COL,ROW, 1, : )*RJ_CORR( COL,ROW )) )/2.0
                             END IF

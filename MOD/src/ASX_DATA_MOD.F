@@ -141,6 +141,10 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: CLU      ( :,: )  ! Clumping Index
          Real,    Allocatable :: POPU     ( :,: )  ! Population Density (people/10km2)
          Real,    Allocatable :: LAIE     ( :,: )  ! ECCC LAI (m2/m2)
+         Real,    Allocatable :: C1R      ( :,: )  ! cumulative LAI fraction hc to 0.75 * hc 
+         Real,    Allocatable :: C2R      ( :,: )  ! cumulative LAI fraction hc to 0.50 * hc
+         Real,    Allocatable :: C3R      ( :,: )  ! cumulative LAI fraction hc to 0.35 * hc
+         Real,    Allocatable :: C4R      ( :,: )  ! cumulative LAI fraction hc to 0.20 * hc
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
@@ -608,7 +612,11 @@ C-----------------------------------------------------------------------
      &                Met_Data%FRT    ( NCOLS,NROWS ),
      &                Met_Data%CLU    ( NCOLS,NROWS ),
      &                Met_Data%POPU   ( NCOLS,NROWS ),
-     &                Met_Data%LAIE   ( NCOLS,NROWS ),                  
+     &                Met_Data%LAIE   ( NCOLS,NROWS ),
+     &                Met_Data%C1R    ( NCOLS,NROWS ), 
+     &                Met_Data%C2R    ( NCOLS,NROWS ),                 
+     &                Met_Data%C3R    ( NCOLS,NROWS ),
+     &                Met_Data%C4R    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating Canopy Shade variables'
@@ -824,6 +832,14 @@ C Canopy vars
             call interpolate_var ('POPU', jdate, jtime, Met_Data%POPU)
         
             call interpolate_var ('LAIE', jdate, jtime, Met_Data%LAIE)
+
+            call interpolate_var ('C1R', jdate, jtime, Met_Data%C1R)
+
+            call interpolate_var ('C2R', jdate, jtime, Met_Data%C2R)
+
+            call interpolate_var ('C3R', jdate, jtime, Met_Data%C3R)
+
+            call interpolate_var ('C4R', jdate, jtime, Met_Data%C4R)
          End If
 C met vars
 
