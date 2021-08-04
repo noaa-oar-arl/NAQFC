@@ -324,6 +324,7 @@ C...modules
       REAL                    :: XCAN     ( 2 )        ! canopy height interpolation bounds
       REAL                    :: YCAN     ( 2 )        ! photolysis attenuation interpolation bounds
       REAL ZFL, ZCAN, COUNTCAN, XCANOUT                ! local canopy variables
+      INTEGER, PARAMETER      :: MAXCAN = 1000         ! Declare local maximum canopy layers
 
       INTERFACE
          SUBROUTINE O3TOTCOL ( LATITUDE, LONGITUDE, JDATE, JTIME, OZONE )
@@ -341,6 +342,11 @@ C...modules
       END INTERFACE
 
 ! ----------------------------------------------------------------------
+
+      IF ( CANOPY_SHADE ) THEN
+        ALLOCATE( RJ_CORRX     ( MAXCAN ) )
+        ALLOCATE( ZCANX        ( MAXCAN ) )
+      END IF
 
       IF ( FIRSTIME ) THEN
 
