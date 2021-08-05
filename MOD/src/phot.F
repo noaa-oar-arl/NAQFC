@@ -1185,49 +1185,49 @@ C...modules
                                    ELSE IF  ( ZCAN .LE. Met_Data%FCH( COL,ROW )   .AND. 
      &                                        ZCAN .GT. Met_Data%FCH( COL,ROW )*0.75 ) THEN
                                      COUNTCAN = COUNTCAN + 1
-                                     XCAN(1) = Met_Data%FCH( COL,ROW )
-                                     YCAN(1) = 1.0
-                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.75
-                                     YCAN(2) = RJ_CORR_C1R( COL,ROW )
+                                     XCAN(2) = Met_Data%FCH( COL,ROW )
+                                     YCAN(2) = 1.0
+                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.75
+                                     YCAN(1) = RJ_CORR_C1R( COL,ROW )
                                      XCANOUT = ZCAN
                                      ZCANX(COUNTCAN) = ZCAN
                                      RJ_CORRX (COUNTCAN) = interp_linear1_internal(XCAN,YCAN,XCANOUT)
                                    ELSE IF ( ZCAN .LE. Met_Data%FCH( COL,ROW )*0.75   .AND. 
      &                                       ZCAN .GT. Met_Data%FCH( COL,ROW )*0.50 ) THEN
                                      COUNTCAN = COUNTCAN + 1
-                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.75
-                                     YCAN(1) = RJ_CORR_C1R( COL,ROW )
-                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.50
-                                     YCAN(2) = RJ_CORR_C2R( COL,ROW )
+                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.75
+                                     YCAN(2) = RJ_CORR_C1R( COL,ROW )
+                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.50
+                                     YCAN(1) = RJ_CORR_C2R( COL,ROW )
                                      XCANOUT = ZCAN
                                      ZCANX(COUNTCAN) = ZCAN
                                      RJ_CORRX (COUNTCAN) = interp_linear1_internal(XCAN,YCAN,XCANOUT)
                                    ELSE IF ( ZCAN .LE. Met_Data%FCH( COL,ROW )*0.50   .AND. 
      &                                       ZCAN .GT. Met_Data%FCH( COL,ROW )*0.35 ) THEN
                                      COUNTCAN = COUNTCAN + 1
-                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.50
-                                     YCAN(1) = RJ_CORR_C2R( COL,ROW )
-                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.35
-                                     YCAN(2) = RJ_CORR_C3R( COL,ROW )
+                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.50
+                                     YCAN(2) = RJ_CORR_C2R( COL,ROW )
+                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.35
+                                     YCAN(1) = RJ_CORR_C3R( COL,ROW )
                                      XCANOUT = ZCAN
                                      ZCANX(COUNTCAN) = ZCAN
                                      RJ_CORRX (COUNTCAN) = interp_linear1_internal(XCAN,YCAN,XCANOUT)
                                    ELSE IF ( ZCAN .LE. Met_Data%FCH( COL,ROW )*0.35  .AND. 
      &                                       ZCAN .GT. Met_Data%FCH( COL,ROW )*0.20 ) THEN
                                      COUNTCAN = COUNTCAN + 1
-                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.35
-                                     YCAN(1) = RJ_CORR_C3R( COL,ROW )
-                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.20
-                                     YCAN(2) = RJ_CORR_C4R( COL,ROW )
+                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.35
+                                     YCAN(2) = RJ_CORR_C3R( COL,ROW )
+                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.20
+                                     YCAN(1) = RJ_CORR_C4R( COL,ROW )
                                      XCANOUT = ZCAN
                                      ZCANX(COUNTCAN) = ZCAN
                                      RJ_CORRX (COUNTCAN) = interp_linear1_internal(XCAN,YCAN,XCANOUT)
                                    ELSE IF ( ZCAN .LE. Met_Data%FCH( COL,ROW )*0.20 ) THEN
                                      COUNTCAN = COUNTCAN + 1
-                                     XCAN(1) = Met_Data%FCH( COL,ROW )*0.20
-                                     YCAN(1) = RJ_CORR_C4R( COL,ROW )
-                                     XCAN(2) = 0.5
-                                     YCAN(2) = RJ_CORR_BOT( COL,ROW )
+                                     XCAN(2) = Met_Data%FCH( COL,ROW )*0.20
+                                     YCAN(2) = RJ_CORR_C4R( COL,ROW )
+                                     XCAN(1) = 0.5
+                                     YCAN(1) = RJ_CORR_BOT( COL,ROW )
                                      XCANOUT = ZCAN
                                      ZCANX(COUNTCAN) = ZCAN
                                      RJ_CORRX (COUNTCAN) = interp_linear1_internal(XCAN,YCAN,XCANOUT)
