@@ -996,8 +996,11 @@ C     &                                      Met_Data%dens1( c,r ) )
             real utstar                            ! threshold U* [m/s]
             real utem                              ! U term [(m/s)**3]
             real fac
+            real uthres                            ! utstar * fmoit
+            real rustar                            ! rdrag * ustar
+            real u_sum                             ! rustar * uthres
             integer n
-
+            
 ! I can't initialize dp this way - it has to be passed in since ndp is variable
 
             fac = cfac * dens 
@@ -1005,12 +1008,21 @@ C     &                                      Met_Data%dens1( c,r ) )
             utstar  = 0.0
             hflux   = 0.0
             utstar = fmoit * uthr / drag 
-            if ( ustar .gt. utstar ) then  ! wind erosion occurs only if U* > U*t
-                  utem = ustar ** 3 * ( 1.0 - (utstar / ustar) ** 2)
-C---Horiz. Flux from Owen (1964)
-!                 utem = ustr * ( ustr * ustr - utstar * utstar )
-                  hflux = hflux + fac * ssm * utem !  [g/m/s]
-            end if
+            
+            rustar = drag * ustar
+            
+            ! Adjust threshold
+            ! ----------------
+            u_thresh = uthr * fmoit
+
+            u_sum = rustar + u_thresh
+
+            ! Compute Horizontal Saltation Flux according to Eq (9) in Webb et al. (2020)
+            ! ---------------------------------------------------------------------------
+            utem = max(0., rustar - u_thresh) * u_sum * u_sum
+           
+            hflux = hflux + fac * ssm * utem !  [g/m/s]
+            
          end function dust_hflux
 C==============================================================================
         function dust_volumetric_to_gravimetric(vsoilm,clay,sand)
